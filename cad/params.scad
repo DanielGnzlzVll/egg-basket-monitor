@@ -92,7 +92,14 @@ pcb_t            = 1.6;   // mm, espesor del PCB
 pcb_hole_spacing = 20.0;  // mm entre centros de los agujeros de montaje
 pcb_hole_d       = 2.1;   // mm, agujero para tornillo M2 autorroscante
 pcb_pocket_clear = 0.4;   // holgura del bolsillo
-window_d         = 12.0;  // mm, ventana optica
+// Ventana optica. Tiene que dejar pasar el cono de 27 grados desde la
+// apertura del sensor a traves del material que queda por delante del PCB
+// (wall_t menos la profundidad del bolsillo, unos 4 mm):
+//     2 * (2.7 + 4*tan(13.5)) = 7.3 mm
+// Ø8 deja margen. No conviene agrandarla mas: el bolsillo solo mide 11.8 mm
+// de alto y una ventana mayor se lo comeria entero, dejando el PCB sin
+// apoyo por arriba y por abajo.
+window_d         = 8.0;   // mm
 optics_offset    = 0;     // mm, del centro del PCB al eje optico (medir)
 wire_channel_d   = 6.0;   // mm, canal para los 5 Dupont
 

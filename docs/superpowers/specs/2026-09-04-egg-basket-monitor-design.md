@@ -58,9 +58,43 @@ conscientemente el riesgo de lecturas ruidosas.
 2. ROI del receptor reducido para estrechar el cono. El emisor siempre dispara
    27° y eso no es configurable; solo el receptor admite ROI, hasta un mínimo
    de 15° con 4×4 SPADs.
-3. Rótula con detentes cada 5° entre 15° y 60° en la pieza impresa, para
-   corregir el ángulo sin reimprimir. El ángulo es el parámetro que más
-   probablemente falle a la primera.
+3. Articulación con detentes cada 4° en la pieza impresa, para corregir el
+   ángulo sin reimprimir. El ángulo es el parámetro que más probablemente falle
+   a la primera. El rango realmente utilizable lo fija la geometría de la
+   canasta, no una preferencia: ver la sección siguiente.
+
+### El cono del emisor decide dónde se monta y a cuánto se apunta
+
+Con las medidas reales de la canasta —**300 mm de ancho × 150 mm de fondo ×
+500 mm de alto**, borde de ~10 mm— el apuntado deja de ser libre. La canasta es
+un pozo profundo y estrecho, y el emisor del VL53L1X dispara un cono fijo de 27°
+que no se puede estrechar. Si el cono toca una pared antes de llegar al fondo, la
+pared devuelve más señal que los huevos y el sensor mide la pared.
+
+Dos consecuencias, ambas calculadas en `cad/lib/geometry.scad` a partir de las
+tres medidas:
+
+- **La mordaza va en mitad de un lado corto**, apuntando a través de los 300 mm.
+  Apuntando a través de los 150 mm no hay **ningún** ángulo válido.
+- **El rango útil es 8-20°** desde la vertical, cuatro posiciones de detente.
+  Por debajo, el borde cercano del ROI ve la pared de montaje; por encima, el
+  borde lejano alcanza la pared de enfrente.
+
+El cálculo parte de la posición **real** del sensor, no del borde de la canasta:
+el pod cuelga de un brazo que lo mete ~68 mm hacia dentro y ~70 mm hacia abajo.
+Eso lo aleja de la pared de montaje, que ayuda, pero lo acerca a la de enfrente,
+que es lo que de verdad recorta el rango por arriba. Hacer el cálculo desde el
+borde da un máximo de 23,5° que en la práctica no existe.
+
+En el detente nominal de 16° el sensor lee **450 mm con la canasta vacía y
+345 mm llena**, unos 104 mm de recorrido útil. Ambas cifras caen dentro del modo
+**short** del VL53L1X, que es el más inmune a la luz ambiente: un resultado
+afortunado que conviene no perder al tocar cotas.
+
+`geometry.scad` **aborta la compilación** si no queda ningún ángulo válido, o si
+queda solo uno (una articulación con una sola posición no regula nada). Cambiar
+las medidas de la canasta a algo imposible falla en voz alta en vez de producir
+una pieza inútil.
 
 ### Montaje: cabeza en el borde, midiendo en diagonal
 
@@ -72,7 +106,7 @@ La electrónica **no** va en el borde. Un 18650 con su cuna pesa ~70 g y volcar�
 una canasta liviana. El sistema se parte en dos cuerpos unidos por un latiguillo
 Dupont de 20 cm:
 
-- **Cabeza del sensor** (~15 g): mordaza en C + rótula + VL53L1X.
+- **Cabeza del sensor** (~35 g): mordaza + placa + pod articulado + VL53L1X.
 - **Caja de electrónica**: MCU, celda, TP4056. Apoyada en la mesa detrás de la
   canasta o fijada con imanes al mueble.
 
@@ -232,15 +266,62 @@ Se usa **OpenSCAD** en lugar de Fusion 360: es texto plano, versionable y
 diffeable en un repo público, y se puede editar directamente desde el editor.
 Todas las cotas viven en `cad/params.scad`.
 
+### Cabeza del sensor: cuatro piezas *(implementada)*
+
+`cad/sensor_head.scad` genera las cuatro piezas según la variable `part`. Se
+partió en cuatro por una razón concreta: **cada una tiene una orientación de
+impresión distinta en la que no necesita ni un solo soporte.** Fundirlas en una
+sola pieza obligaría a soportes en la cara dentada, que es justo la que necesita
+precisión.
+
+| Pieza | Descripción | Orientación |
+|---|---|---|
+| `clamp` | Mordaza en C sobre el borde, parametrizada solo por `rim_thickness`. Nervios antideslizantes y tornillo de apriete que rosca directo en el plástico. Pasacables en el puente. | De canto: es un prisma puro, cada capa es el mismo perfil en U |
+| `plate` | Placa de bisagra: se atornilla a la cara lateral de la mordaza y lleva la corona Hirth. Aloja la cabeza del perno del pivote en un avellanado. | Plana, dientes hacia arriba |
+| `pod` | Brazo con la corona Hirth complementaria en un extremo y el alojamiento del VL53L1X en el otro. Ventana óptica de 12 mm y 2 pilotos M2. | Plana, dientes hacia arriba |
+| `knob` | Pomo lobulado con tuerca M3 embutida. Se afloja a mano, se gira el pod, se aprieta. | Plana |
+
+**La articulación es un acoplamiento Hirth de paso 4°**: dos caras dentadas
+idénticas, en cunas radiales, que engranan y se autocentran. Se eligió frente a
+un trinquete de pasador y agujeros porque el Hirth es diente-valle continuo, sin
+pared entre detentes; con pasadores, la pared entre agujeros a paso fino cae por
+debajo del ancho de extrusión y deja de ser imprimible.
+
+Lo que limita el paso no es el paso en sí sino `hirth_r_in`: el diente se
+estrecha hacia el centro y es en el radio interior donde se redondea al
+imprimir. Con `r_in = 18` y paso 4° el flanco mide 0,63 mm, cómodo para una
+boquilla de 0,4. **Regla: si se baja `detent_step`, hay que subir `hirth_r_in` en
+la misma proporción.**
+
+La corona se construye como un único `polyhedron` y no como la unión de 90
+cuñas. No es microoptimización: unir 90 sólidos no convexos en CGAL tardaba más
+de cinco minutos y agotaba el timeout; el poliedro tarda quince segundos.
+
+**Las longitudes de tornillería las calcula el modelo y las imprime al
+compilar**, para que no se queden obsoletas al tocar una cota. Con las cotas
+actuales: pivote M3×12, placa-mordaza 2× M3×30, apriete M3×16 (sin tuerca), y
+2× M2×6 autorroscante para el módulo.
+
+El orden de montaje importa, porque hay piezas que quedan cautivas: las dos
+tuercas de la placa y el perno del pivote se colocan **antes** de atornillar la
+placa a la mordaza. Una vez montada, la cara de la mordaza tapa la cabeza del
+perno y le impide girar, así que el ángulo se cambia solo con el pomo, sin
+llaves y sin sujetar nada por detrás.
+
+Tamaños: la pieza mayor es el pod, 52 × 68 × 18 mm. El conjunto pesa ~35 g.
+
+### Piezas pendientes
+
 | Pieza | Descripción |
 |---|---|
-| `sensor_head.scad` | Mordaza en C sobre el borde de la canasta, parametrizada por `rim_thickness`. Rótula con detentes cada 5° entre 15° y 60°. Ventana de 12 mm y alojamiento del módulo VL53L1X con 2 tornillos M2. |
 | `battery_cradle.scad` | Cuna para 18650. Nicho para resorte de bolígrafo en el negativo (absorbe la tolerancia real de 64.5-65.5 mm de largo), lámina de latón en el positivo, tornillo M2 que pinza el cable Dupont contra cada contacto. Dimensionada también para aceptar un portapilas comercial si los contactos impresos resultan intermitentes. |
 | `enclosure.scad` | Aloja MCU, cuna y TP4056. Aberturas para ambos USB-C en la misma cara, acceso al botón BOOT, ventilación sobre la celda, nichos para imanes 6×3 en la pared trasera, tapa con 4 tornillos M3. |
 | `strain_relief.scad` | Pasacables en ambos extremos del latiguillo de 20 cm. |
 
 `cad/build.py` exporta los STL invocando el CLI de OpenSCAD, para que el repo no
-guarde binarios generados.
+guarde binarios generados. Imprime además el informe de geometría y las
+longitudes de tornillo, y devuelve código de salida distinto de cero si alguna
+pieza falla un `assert`.
 
 **Impresión en Janus (Voron Trident):** PETG —la cocina tiene calor y grasa, el
 PLA se deforma—, capa 0.2 mm, 4 perímetros, ~60 g, ~5 h. Diseñado sin soportes:
@@ -249,10 +330,6 @@ voladizos por debajo de 45° y la ventana del sensor resuelta con un puente.
 ⚠️ Janus tiene `[homing_override]` en Z que arranca con `G0 Z10` y cruza la cama
 en diagonal. Hay que retirar cualquier pieza alta de la cama antes de lanzar el
 print, o el homing estrella el cabezal.
-
-**Bloqueante:** faltan las medidas de la canasta (boca, alto, espesor y material
-del borde, presencia de repisa encima). Los `.scad` se escriben con valores por
-defecto razonables; no se exportan STL hasta tener las cotas reales.
 
 ## Firmware
 
@@ -281,7 +358,7 @@ Detalles:
   Esto también cubre la antena cerámica floja del C3 SuperMini, un defecto
   conocido de esas placas.
 - **Modo calibración.** Botón BOOT presionado durante el arranque → 60 s
-  imprimiendo distancia por serial a 2 Hz, para apuntar la rótula en vivo.
+  imprimiendo distancia por serial a 2 Hz, para elegir el detente en vivo.
 - Librería `pololu/VL53L1X` (soporta ROI y es ligera).
 
 Línea enviada:
@@ -333,6 +410,8 @@ de Telegram:
 ├── cad/
 │   ├── params.scad
 │   ├── sensor_head.scad
+│   ├── lib/geometry.scad
+│   ├── lib/hirth.scad
 │   ├── battery_cradle.scad
 │   ├── enclosure.scad
 │   ├── strain_relief.scad
@@ -353,8 +432,8 @@ de Telegram:
 |---|---|---|
 | El LDO del C3 SuperMini es un AMS1117 | El sistema muere con la celda al 70% | Medir el brownout con fuente variable. Salida: alimentar 3V3 desde un HT7333. |
 | El módulo VL53L1X llega con AMS1117 | Autonomía de semanas en vez de meses | Load switch con MOSFET-P (~USD 1). |
-| El ángulo diagonal da lecturas erráticas | El nivel estimado no sirve | Rótula con detentes + `stddev` como métrica de diagnóstico. Última salida: subir a VL53L5CX. |
-| Faltan las medidas de la canasta | No se pueden exportar STL | Pendiente del usuario. Los `.scad` son paramétricos. |
+| El ángulo diagonal da lecturas erráticas | El nivel estimado no sirve | Cuatro detentes (8-20°) + `stddev` como métrica de diagnóstico. Última salida: subir a VL53L5CX. |
+| Solo hay 12° de ventana angular válida | Un error de montaje de 1 cm en la altura de la mordaza puede sacar al sensor del rango | Verificar con el modo de calibración por serial antes de dar por buena la posición. `geometry.scad` recalcula la ventana si se mide la canasta con más cuidado. |
 | Retención del free tier de Grafana Cloud | Histórico corto | Verificar el límite vigente al configurar la stack. |
 
 ## Criterios de éxito

@@ -57,6 +57,10 @@ eps       = 0.01;
 head_cbore_d = 6.6;                      // avellanado de la cabeza del pivote
 head_cbore   = 3.2;
 
+rib_t = 3.0;                             // nervios brazo-pared del pod
+rib_h = 12;
+rib_l = 12;
+
 // --- Longitudes de tornilleria, calculadas ---------------------------------
 // Se recalculan solas si cambias cualquier cota. Redondear hacia arriba al
 // tamano comercial siguiente (10, 12, 16, 20, 25, 30...).
@@ -197,6 +201,18 @@ module pod() {
             translate([0, -pod_arm + wall_t / 2, -hirth_backing])
                 linear_extrude(body_h)
                     square([pocket_l + 2 * clamp_wall, wall_t], center = true);
+
+            // Dos nervios de refuerzo. Sin ellos, un brazo de hirth_backing
+            // de espesor sujeta en voladizo una pared de body_h de alto: la
+            // union en T se parte al primer golpe. Van en los extremos, por
+            // detras de la pared, para no invadir ni el bolsillo del PCB ni
+            // el cono optico.
+            for (s = [-1, 1])
+                translate([s * (pocket_l + clamp_wall) / 2,
+                           -pod_arm + wall_t, -hirth_backing])
+                    rotate([0, 90, 0])
+                        linear_extrude(rib_t, center = true)
+                            polygon([[0, 0], [-rib_h, 0], [0, rib_l]]);
         }
 
         // Bolsillo del PCB, abierto por la cara trasera (+Y local).
