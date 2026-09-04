@@ -102,16 +102,27 @@ El sensor se sujeta al borde de la canasta y apunta en diagonal hacia el fondo
 opuesto, no verticalmente desde arriba. Esto deja libre la boca de la canasta,
 que es por donde se ponen y sacan los huevos.
 
-La electrónica **no** va en el borde. Un 18650 con su cuna pesa ~70 g y volcaría
-una canasta liviana. El sistema se parte en dos cuerpos unidos por un latiguillo
-Dupont de 20 cm:
+El sistema se parte en dos cuerpos unidos por un latiguillo Dupont de 20 cm:
 
 - **Cabeza del sensor** (~35 g): mordaza + placa + pod articulado + VL53L1X.
-- **Caja de electrónica**: MCU, celda, TP4056. Apoyada en la mesa detrás de la
-  canasta o fijada con imanes al mueble.
+  Cuelga del borde hacia **dentro**.
+- **Caja de electrónica** (~90 g con la celda): MCU, 18650, TP4056. Cuelga del
+  borde hacia **fuera**, con su propio gancho.
 
-Beneficio secundario: la canasta se puede levantar y lavar, y la celda de litio
-no queda suspendida sobre la comida.
+**Corrección respecto a la primera versión de este spec.** Antes decía que la
+electrónica no podía ir en el borde porque un 18650 con su cuna pesa ~70 g y
+volcaría una canasta liviana. Ese razonamiento medía el peso, que es la
+magnitud equivocada: lo que vuelca una canasta es el **momento**, y el momento
+depende de dónde cuelga la masa. Colgada por fuera, pegada a la pared, la caja
+tiene un brazo de ~12 mm; la cabeza del sensor tiene 45 mm hacia el otro lado.
+Los dos momentos son del mismo orden y de signo contrario, así que la caja no
+solo no empeora el equilibrio: lo mejora. Un cuerpo suelto en la mesa, además,
+obligaba a un latiguillo tenso que es justo lo que tira de la canasta.
+
+Se mantienen los dos motivos por los que la caja no va **dentro**: la celda de
+litio no queda suspendida sobre la comida, y la canasta se puede levantar y
+lavar soltando dos ganchos. La cara inferior de la caja es plana a propósito,
+así que también se sostiene de pie en la mesa si se prefiere.
 
 ### La calibración vive en Grafana, no en el firmware
 
@@ -278,7 +289,7 @@ precisión.
 |---|---|---|
 | `clamp` | Mordaza en C sobre el borde, parametrizada solo por `rim_thickness`. Nervios antideslizantes y tornillo de apriete que rosca directo en el plástico. Pasacables en el puente. | De canto: es un prisma puro, cada capa es el mismo perfil en U |
 | `plate` | Placa de bisagra: se atornilla a la cara lateral de la mordaza y lleva la corona Hirth. Aloja la cabeza del perno del pivote en un avellanado. | Plana, dientes hacia arriba |
-| `pod` | Brazo con la corona Hirth complementaria en un extremo y el alojamiento del VL53L1X en el otro. Ventana óptica de 12 mm y 2 pilotos M2. | Plana, dientes hacia arriba |
+| `pod` | Brazo con la corona Hirth complementaria en un extremo y el alojamiento del VL53L1X en el otro. Ventana óptica de Ø8 mm, 2 pilotos M2 y dos nervios que refuerzan la unión en T entre el brazo y la pared del PCB. | Plana, dientes hacia arriba |
 | `knob` | Pomo lobulado con tuerca M3 embutida. Se afloja a mano, se gira el pod, se aprieta. | Plana |
 
 **La articulación es un acoplamiento Hirth de paso 4°**: dos caras dentadas
@@ -287,11 +298,24 @@ un trinquete de pasador y agujeros porque el Hirth es diente-valle continuo, sin
 pared entre detentes; con pasadores, la pared entre agujeros a paso fino cae por
 debajo del ancho de extrusión y deja de ser imprimible.
 
-Lo que limita el paso no es el paso en sí sino `hirth_r_in`: el diente se
-estrecha hacia el centro y es en el radio interior donde se redondea al
-imprimir. Con `r_in = 18` y paso 4° el flanco mide 0,63 mm, cómodo para una
-boquilla de 0,4. **Regla: si se baja `detent_step`, hay que subir `hirth_r_in` en
-la misma proporción.**
+El flanco del diente mide `2·π·r·(paso/2)/360`, o sea que se estrecha hacia el
+centro: es en el radio interior donde se redondea al imprimir. La primera
+versión sacó de ahí la conclusión equivocada —subir `hirth_r_in` para que el
+diente interior saliera definido— y eso infló la pieza entera, porque `r_in`
+arrastra a `r_out` y `r_out` es el que fija el tamaño.
+
+La regla correcta separa las dos cosas: **`hirth_r_out` manda en el TAMAÑO,
+`detent_step` manda en la RESOLUCIÓN, y `hirth_r_in` solo tiene que dejar pasar
+la cabeza del tornillo.** Que los dientes interiores salgan redondeados no
+importa por dos razones: el par crece con el radio, así que esos dientes apenas
+trabajan; y como las dos caras se imprimen con el mismo perfil, se redondean
+igual y siguen engranando.
+
+Con `r_out = 17` y paso 4° el flanco exterior mide 0,59 mm, cómodo para una
+boquilla de 0,4. Aplicar la regla redujo la placa de 56 × 54 a 37 × 45 mm y el
+pod de 52 × 68 a 34 × 46 mm, **sin perder ninguno de los cuatro detentes
+válidos**, y de paso bajó la intrusión del sensor dentro de la canasta de 68 a
+45 mm.
 
 La corona se construye como un único `polyhedron` y no como la unión de 90
 cuñas. No es microoptimización: unir 90 sólidos no convexos en CGAL tardaba más
@@ -300,7 +324,8 @@ de cinco minutos y agotaba el timeout; el poliedro tarda quince segundos.
 **Las longitudes de tornillería las calcula el modelo y las imprime al
 compilar**, para que no se queden obsoletas al tocar una cota. Con las cotas
 actuales: pivote M3×12, placa-mordaza 2× M3×30, apriete M3×16 (sin tuerca), y
-2× M2×6 autorroscante para el módulo.
+2× M2×6 autorroscante para el módulo. (Los mínimos calculados son 10,2 / 28,8 /
+13,2 mm; se redondean al tamaño comercial siguiente.)
 
 El orden de montaje importa, porque hay piezas que quedan cautivas: las dos
 tuercas de la placa y el perno del pivote se colocan **antes** de atornillar la
@@ -308,14 +333,53 @@ placa a la mordaza. Una vez montada, la cara de la mordaza tapa la cabeza del
 perno y le impide girar, así que el ángulo se cambia solo con el pomo, sin
 llaves y sin sujetar nada por detrás.
 
-Tamaños: la pieza mayor es el pod, 52 × 68 × 18 mm. El conjunto pesa ~35 g.
+Tamaños: la pieza mayor es el pod, 34 × 46 × 18 mm. El conjunto pesa ~35 g.
+
+### El gancho al borde es una sola pieza de código
+
+`cad/lib/rim_hook.scad` tiene el perfil en U que se cuelga del borde, y lo usan
+tanto la mordaza del sensor como la caja de electrónica. Las dos patas son
+parámetros porque cada pieza quiere lo contrario —la cabeza cuelga hacia dentro
+y necesita pata interior larga; la caja cuelga hacia fuera y necesita pata
+exterior larga— pero el hueco del borde, el apriete y los nervios son
+literalmente el mismo código. Cambiar de canasta es tocar `rim_thickness` una
+vez y que se arreglen las dos.
+
+### Caja de electrónica: tres piezas *(implementada)*
+
+`cad/electronics_box.scad`. Exterior 55 × 81 × 24 mm más las orejas.
+
+| Pieza | Descripción | Orientación |
+|---|---|---|
+| `box` | Celda de pie contra una pared; TP4056 y ESP32-C3 tumbados contra el fondo en el vano de al lado, los dos alineados a la derecha para que sus USB-C salgan por el mismo costado. | Boca hacia arriba |
+| `lid` | Tapa con ranuras de ventilación sobre la celda. | Plana |
+| `hook` | Gancho al borde, con pata exterior larga: es donde se atornilla la caja. | De canto |
+
+Decisiones que no son obvias:
+
+- **Los módulos van tumbados, no de canto.** Así la caja mide 24 mm de fondo en
+  vez de 32, y pegada a la pared hace menos palanca. Los ~13 mm que quedan
+  libres por delante no se desperdician: son para el cableado Dupont, que
+  abulta más que los propios módulos.
+- **Nada se suelda a la celda.** El cable se suelda al muelle y a la lámina de
+  latón *antes* de montarlos. El muelle además absorbe la variación real de
+  longitud: el hueco de 70 mm acepta celdas de 62 a 69 mm, o sea tanto una sin
+  proteger de 65 como una con PCB de protección de 69.
+- **El tornillo de apriete del gancho va arriba del todo y la caja cuelga por
+  debajo.** Si se solaparan, el saliente de 6 mm del tornillo chocaría contra el
+  fondo de la caja y esta no apoyaría plana contra la pata.
+- **Los tornillos de la tapa son dos bosses interiores por el lado de los
+  módulos y dos orejas exteriores por el lado de la celda.** No hay bosses
+  interiores en ese lado porque la celda ocupa el rincón entero.
+
+El modelo se autocomprueba con `assert`: que el nicho del muelle no atraviese el
+suelo, que ningún módulo pise un boss de la tapa ni la espina del gancho, y que
+ningún tornillo del gancho caiga fuera de la pata o encima del de apriete.
 
 ### Piezas pendientes
 
 | Pieza | Descripción |
 |---|---|
-| `battery_cradle.scad` | Cuna para 18650. Nicho para resorte de bolígrafo en el negativo (absorbe la tolerancia real de 64.5-65.5 mm de largo), lámina de latón en el positivo, tornillo M2 que pinza el cable Dupont contra cada contacto. Dimensionada también para aceptar un portapilas comercial si los contactos impresos resultan intermitentes. |
-| `enclosure.scad` | Aloja MCU, cuna y TP4056. Aberturas para ambos USB-C en la misma cara, acceso al botón BOOT, ventilación sobre la celda, nichos para imanes 6×3 en la pared trasera, tapa con 4 tornillos M3. |
 | `strain_relief.scad` | Pasacables en ambos extremos del latiguillo de 20 cm. |
 
 `cad/build.py` exporta los STL invocando el CLI de OpenSCAD, para que el repo no
@@ -410,10 +474,10 @@ de Telegram:
 ├── cad/
 │   ├── params.scad
 │   ├── sensor_head.scad
+│   ├── electronics_box.scad
 │   ├── lib/geometry.scad
 │   ├── lib/hirth.scad
-│   ├── battery_cradle.scad
-│   ├── enclosure.scad
+│   ├── lib/rim_hook.scad
 │   ├── strain_relief.scad
 │   └── build.py
 ├── grafana/

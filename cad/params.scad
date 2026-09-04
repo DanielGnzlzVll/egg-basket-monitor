@@ -60,15 +60,25 @@ knob_lobes = 6;
    Dos caras dentadas identicas que engranan cada `detent_step` grados.
    Se aflojan a mano, se gira, se vuelven a apretar.
 
-   Lo que limita el paso es hirth_r_in, no el paso en si: el diente es mas
-   estrecho cuanto mas cerca del centro, y donde se redondea al imprimir es
-   en el radio interior. El flanco util ahi mide 2*pi*r_in*(step/2)/360.
-   Con r_in=18 y step=4 salen 0.63 mm, comodo para una boquilla de 0.4.
-   Regla: si bajas detent_step, sube hirth_r_in en la misma proporcion.     */
+   Quien manda en el TAMANO de la pieza es hirth_r_out, y quien manda en la
+   RESOLUCION es detent_step. No hay que confundirlos: la tentacion es subir
+   los dos radios para que el diente salga ancho, y eso hincha la pieza
+   entera sin necesidad.
+
+   El flanco mide 2*pi*r*(step/2)/360, o sea que se estrecha hacia el centro.
+   Con r_out=17 y step=4 el flanco exterior mide 0.59 mm, comodo para una
+   boquilla de 0.4. En r_in=11 baja a 0.38 mm y los dientes de dentro salen
+   redondeados, y no pasa nada por dos razones: el par crece con el radio,
+   asi que esos dientes apenas trabajan, y como las dos caras se imprimen
+   con el mismo perfil se redondean igual y siguen encajando.
+
+   Regla practica: dimensiona hirth_r_out para que el flanco exterior pase
+   de 0.5 mm, y deja hirth_r_in en lo que haga falta para que quepa la
+   cabeza del tornillo del pivote.                                          */
 
 detent_step   = 4;     // grados por posicion (90 posiciones en 360)
-hirth_r_in    = 18;    // mm, radio interior de la corona dentada
-hirth_r_out   = 26;    // mm, radio exterior
+hirth_r_in    = 11;    // mm, radio interior de la corona dentada
+hirth_r_out   = 17;    // mm, radio exterior
 hirth_h       = 1.4;   // mm, altura del diente
 hirth_backing = 3.2;   // mm, espesor del disco detras de los dientes
 pivot_screw_d = 3.4;   // M3 pasante del eje
@@ -110,12 +120,49 @@ wire_channel_d   = 6.0;   // mm, canal para los 5 Dupont
    No se pone una capota: una capota recortada a 27 grados no bloquea nada
    que este dentro del cono, y la pared cercana esta dentro del cono.       */
 
-pod_reach = 26;   // mm, de la cara interna de la pared al eje del pivote
+pod_reach = 16;   // mm, de la cara interna de la pared al eje del pivote
 
-// Del eje del pivote al centro del sensor. Sale de la propia geometria del
-// pod, pero vive aqui porque geometry.scad lo necesita para saber donde acaba
-// mirando el sensor de verdad.
-pod_arm = hirth_r_out + pcb_w / 2 + 10;   // mm
+// Del eje del pivote al centro del sensor: lo justo para que la pared del
+// PCB libre el disco dentado. Vive aqui, y no dentro de sensor_head.scad,
+// porque geometry.scad lo necesita para saber donde acaba mirando el sensor.
+pod_arm = hirth_r_out + pcb_w / 2 + 6;   // mm
+
+/* [Caja de electronica] --------------------------------------------------
+   Cuelga POR FUERA de la canasta, con su propio gancho al borde. Va fuera y
+   no dentro por dos razones: la celda de litio no queda suspendida sobre la
+   comida, y su peso contrarresta el del pod, que tira hacia dentro.
+
+   Tambien se sostiene de pie sobre una mesa sin el gancho: la cara de abajo
+   es plana a proposito.
+
+   MEDIR LOS MODULOS REALES CUANDO LLEGUEN. Los clones de AliExpress varian.  */
+
+cell_d = 18.6;   // mm, diametro del 18650 (nominal 18.4-18.6)
+cell_l = 68;     // mm de hueco: 65 de celda mas el muelle, que come holgura
+
+// Contactos. Nada se suelda a la celda: el cable se suelda al muelle y a la
+// lamina ANTES de montarlos, que es igual de fiable y mucho menos peligroso.
+spring_d = 7.5;  // nicho del muelle de boligrafo, polo negativo
+spring_h = 3.5;  // profundidad del nicho (el muelle va comprimido, no libre)
+strip_w  = 10;   // rebaje de la lamina de laton, polo positivo
+strip_t  = 0.8;
+
+tp_l  = 26;   tp_w  = 17;   tp_t = 5;    // TP4056 con proteccion
+mcu_l = 22.5; mcu_w = 18;   mcu_t = 6;   // ESP32-C3 SuperMini
+board_recess = 1.5;                      // alto del reborde que sitia el modulo
+// El hueco es para el CONECTOR MACHO con su funda, no para el receptaculo.
+usb_w = 12.5; usb_h = 7.5;
+
+box_wall    = 2.4;
+box_lid_t   = 2.4;
+box_screw_d = 3.4;   // M3 de la tapa
+box_boss_d  = 7.5;
+
+// Gancho de la caja: pata exterior larga (es donde se atornilla la caja) y
+// pata interior corta (solo tiene que enganchar).
+box_hook_w   = 26;
+box_hook_out = 40;
+box_hook_in  = 18;
 
 /* [Impresion] ----------------------------------------------------------- */
 

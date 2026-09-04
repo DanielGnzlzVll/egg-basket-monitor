@@ -29,12 +29,13 @@
 // ===========================================================================
 
 include <lib/geometry.scad>    // arrastra params.scad y valida el apuntado
+include <lib/rim_hook.scad>    // perfil en U, compartido con la caja
 use     <lib/hirth.scad>
 
 part = "assembly";
 
 // --- Cotas derivadas -------------------------------------------------------
-slot      = rim_thickness + clamp_clearance;
+slot      = hook_slot;               // viene de lib/rim_hook.scad
 pad       = 8;                       // espesor de la pata interior con tornillos
 px        = rim_thickness + pod_reach;   // X del eje del pivote
 pz        = -pivot_drop;                 // Z del eje del pivote
@@ -49,7 +50,7 @@ mount_lx  = mount_gx - px;               // ...y en el frame local de la placa
 mount_ly  = -(mount_gz - pz);
 
 tight_gz  = -clamp_grip_out / 2;         // tornillo de apriete
-boss_t    = 6;                           // saliente para la tuerca de apriete
+boss_t    = hook_boss;
 
 wall_t    = 6;                           // espesor de la pared que sujeta el PCB
 eps       = 0.01;
@@ -84,43 +85,10 @@ echo(str("=========================================================="));
 //  MORDAZA
 // ===========================================================================
 
-module clamp_profile() {
-    union() {
-        translate([-clamp_wall, 0])
-            square([clamp_wall + slot + pad, clamp_wall]);          // puente
-        translate([-clamp_wall, -clamp_grip_out])
-            square([clamp_wall, clamp_grip_out]);                   // pata exterior
-        translate([slot, -clamp_grip_in])
-            square([pad, clamp_grip_in]);                           // pata interior
-        translate([-clamp_wall - boss_t, tight_gz - 7])
-            square([boss_t, 14]);                                   // saliente tuerca
-    }
-}
-
-// Nervios antideslizantes: crestas verticales en las dos caras que muerden.
-module grip_rib_profile() {
-    if (grip_ribs)
-        for (z = [-6 : -6 : -clamp_grip_out + 3]) {
-            translate([0, z])     polygon([[0,-1.4],[0,1.4],[1.1,0]]);
-            translate([slot, z])  polygon([[0,-1.4],[0,1.4],[-1.1,0]]);
-        }
-}
-
 module clamp() {
     difference() {
-        translate([0, clamp_width / 2, 0]) rotate([90, 0, 0])
-            linear_extrude(clamp_width, convexity = 6)
-                union() { clamp_profile(); grip_rib_profile(); };
-
-        // Tornillo de apriete contra el borde. Rosca directamente en el
-        // plastico del saliente (6 mm de agarre, de sobra para apretar a
-        // mano) y el vastago pasa holgado por la pared para que la punta
-        // empuje el borde. Sin tuerca: con tuerca harian falta cabeza Y
-        // tuerca los dos por fuera, y entonces nada hace de tope.
-        translate([-clamp_wall - boss_t - 1, 0, tight_gz]) rotate([0, 90, 0])
-            cylinder(d = clamp_screw_d - 0.5, h = boss_t + 1 + eps);
-        translate([-clamp_wall, 0, tight_gz]) rotate([0, 90, 0])
-            cylinder(d = clamp_screw_d, h = clamp_wall + 1.5);
+        rim_hook(clamp_width, clamp_grip_out, clamp_grip_in, pad, tight_gz,
+                 ribs = grip_ribs);
 
         // Tornillos de la placa de bisagra. Pasantes lisos: la cabeza apoya
         // en esta cara (-Y, la de fuera, accesible con la llave) y la tuerca

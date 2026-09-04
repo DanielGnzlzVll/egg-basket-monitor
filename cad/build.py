@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exporta los STL de la cabeza del sensor con el CLI de OpenSCAD.
+"""Exporta los STL del proyecto con el CLI de OpenSCAD.
 
     python build.py                 # todas las piezas
     python build.py pod knob        # solo esas
@@ -17,9 +17,15 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "out"
-MODEL = HERE / "sensor_head.scad"
 
-PARTS = ["clamp", "plate", "pod", "knob"]
+# En que archivo vive cada pieza. Los nombres de pieza son unicos en todo el
+# proyecto a proposito, para poder pedirlas por nombre sin decir el archivo.
+MODELS = {
+    "sensor_head.scad": ["clamp", "plate", "pod", "knob"],
+    "electronics_box.scad": ["box", "lid", "hook"],
+}
+PART_MODEL = {p: HERE / m for m, ps in MODELS.items() for p in ps}
+PARTS = list(PART_MODEL)
 
 # Rutas donde suele estar OpenSCAD si no esta en el PATH.
 FALLBACKS = [
@@ -48,18 +54,21 @@ def run(openscad: str, args: list[str]) -> subprocess.CompletedProcess:
 
 
 def report(openscad: str) -> None:
-    """Imprime los ECHO del modelo: angulos utiles y longitudes de tornillo."""
+    """Imprime los ECHO de los modelos: angulos utiles y tornilleria."""
     echo_file = OUT / "report.echo"
-    run(openscad, ["-o", str(echo_file), "--export-format=echo", str(MODEL)])
-    if echo_file.exists():
-        for line in echo_file.read_text(encoding="utf-8").splitlines():
-            print(line.removeprefix('ECHO: ').strip('"'))
+    for model in MODELS:
+        run(openscad, ["-o", str(echo_file), "--export-format=echo",
+                       str(HERE / model)])
+        if echo_file.exists():
+            for line in echo_file.read_text(encoding="utf-8").splitlines():
+                print(line.removeprefix('ECHO: ').strip('"'))
 
 
 def build(openscad: str, part: str) -> bool:
     target = OUT / f"{part}.stl"
     start = time.monotonic()
-    proc = run(openscad, ["-D", f'part="{part}"', "-o", str(target), str(MODEL)])
+    proc = run(openscad, ["-D", f'part="{part}"', "-o", str(target),
+                          str(PART_MODEL[part])])
     elapsed = time.monotonic() - start
 
     # OpenSCAD manda los assert y los WARNING a stderr y devuelve != 0 si fallan.
