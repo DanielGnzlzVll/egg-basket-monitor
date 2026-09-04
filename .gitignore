@@ -1,0 +1,14 @@
+# Secretos: WiFi y token de Grafana Cloud. El repo es publico.
+firmware/include/secrets.h
+
+# PlatformIO
+firmware/.pio/
+.vscode/
+
+# STL y G-code generados por cad/build.py
+cad/out/
+*.stl
+*.gcode
+
+# OpenSCAD
+*.scad.bak
