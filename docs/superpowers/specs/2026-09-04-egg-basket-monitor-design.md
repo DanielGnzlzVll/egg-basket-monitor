@@ -187,11 +187,16 @@ lámina de latón o clip metálico, cable USB-C, filamento PETG.
 | 1 | Módulo VL53L1X, versión 3.3 V pequeña | `VL53L1X module GY-53L1` | 3-6 |
 | 2 | TP4056 **con protección**, USB-C | `TP4056 USB-C protection DW01` | 0.60 |
 | 3 | Resistencias 1 MΩ 1% (×2) | `1M ohm 1% resistor` | 0.20 |
-| 4 | Miniprotoboard 170 puntos | `170 tie points mini breadboard` | 0.50 |
-| 5 | Dupont hembra-hembra 10 cm (pack 40) | `dupont female female 10cm` | 1-2 |
-| 6 | Imanes neodimio 6×3 mm (pack 20) | `neodymium magnet 6x3mm` | 2 |
-| 7 | Tornillos M3×8 y M2×6 autorroscantes | `M2 M3 self tapping screws plastic` | 2 |
-| | **Total** | | **~9-13** |
+| 4 | Dupont hembra-hembra 20 cm (pack 40) | `dupont female female 20cm` | 1-2 |
+| 5 | Termorretráctil surtido | `heat shrink tube assortment` | 1 |
+| 6 | Tornillería M3 + M2 | `M3 hex socket screw assortment kit` | 2-3 |
+| | **Total** | | **~8-12** |
+
+La lista completa, con las longitudes exactas de tornillo que calcula el modelo,
+vive en `docs/bom.md`. Dos ítems de la primera versión han caído: los **imanes
+de neodimio** (la caja ya cuelga del borde con su propio gancho) y la
+**miniprotoboard** (no cabe en el vano de 29 mm, y las dos resistencias del
+divisor se sueldan en línea sobre un Dupont).
 
 **Nota sobre el ítem 1:** hay que pedir explícitamente la versión pequeña de
 3.3 V. Si el módulo trae un regulador AMS1117 (Iq ~5 mA), consume por sí solo
