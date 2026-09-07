@@ -72,14 +72,43 @@ pivot_len   = pivot_nut - pivot_seat;
 // cabeza en la cara -Y de la mordaza, tuerca en la cara +Z de la placa:
 // atraviesa la mordaza entera mas lo que hay hasta el fondo de la tuerca
 mount_len   = clamp_width + nut_h;
-tight_len   = clamp_wall + boss_t + 4;                     // + recorrido de apriete
+tight_len   = rim_hook_screw_len();                        // + recorrido de apriete
+// De la cara delantera de la pared a la cara lejana de la tuerca, pasando por
+// el fondo del bolsillo y el PCB.
+sensor_len  = wall_t - pcb_pocket_clear + m2_nut_h + 0.5;
 
+// En todo el proyecto no hay un solo autorroscante: donde el tornillo no
+// encuentra tuerca al otro lado, la tuerca va embutida en la propia pieza.
 echo(str("--- Tornilleria (minimos, redondear al alza) -------------"));
 echo(str("  Pivote        M3 x ", round(pivot_len * 10) / 10, " mm  + 1 tuerca (en el pomo)"));
 echo(str("  Placa-mordaza M3 x ", round(mount_len * 10) / 10, " mm  x2 + 2 tuercas (en la placa)"));
-echo(str("  Apriete       M3 x ", round(tight_len * 10) / 10, " mm  sin tuerca, rosca en el plastico"));
-echo(str("  Sensor        M2 x 6 mm autorroscante x2"));
+echo(str("  Apriete       M3 x ", round(tight_len * 10) / 10, " mm  + 1 tuerca (cautiva en el saliente)"));
+echo(str("  Sensor        M2 x ", round(sensor_len * 10) / 10, " mm  x2 + 2 tuercas (sueltas, por detras del PCB)"));
 echo(str("=========================================================="));
+
+// --- Que modulos VL53L1X caben ---------------------------------------------
+// Los dos limites reales al elegir breakout. Ninguno tiene que ver con el
+// apuntado: la canasta tiene 500 mm de fondo y un brazo de 30 no la inmuta.
+// Son puramente mecanicos, y por eso son faciles de pasar por alto.
+pcb_support = (pcb_w + 2 * pcb_pocket_clear - window_d) / 2;   // material que
+                                                               // queda arriba
+                                                               // y abajo del PCB
+echo(str("--- Modulo VL53L1X ---------------------------------------"));
+echo(str("  Con ", pcb_l, " x ", pcb_w, " mm el PCB apoya sobre ",
+         round(pcb_support * 100) / 100, " mm de reborde"));
+echo(str("  Ancho minimo del PCB: ", window_d + 4, " mm (ventana de ",
+         window_d, " + 2 mm de apoyo por lado)"));
+echo(str("  Separacion minima de agujeros: ",
+         window_d + pcb_hole_d + 1, " mm (si no, el agujero cae en la ventana)"));
+echo(str("=========================================================="));
+
+assert(pcb_support >= 2,
+       str("El PCB solo apoyaria sobre ", pcb_support, " mm. O el modulo es ",
+           "mas ancho (pcb_w >= ", window_d + 4, ") o la ventana mas pequena."));
+assert(pcb_hole_spacing / 2 > window_d / 2 + pcb_hole_d / 2 + 0.5,
+       "Los agujeros de montaje del modulo caen dentro de la ventana optica.");
+assert(pcb_hole_spacing < pcb_l - 2,
+       "Los agujeros de montaje se salen del PCB. Revisa la medida.");
 
 // ===========================================================================
 //  MORDAZA
@@ -192,7 +221,11 @@ module pod() {
         translate([optics_offset, -pod_arm + wall_t + 1, -hirth_backing + body_h / 2])
             rotate([90, 0, 0]) cylinder(d = window_d, h = wall_t + 2);
 
-        // Pilotos M2 para el modulo.
+        // Pasantes M2 para el modulo. Pasantes y no pilotos: el tornillo entra
+        // por delante, atraviesa la pared y el PCB, y aprieta contra una tuerca
+        // M2 suelta por detras, que es lo que sujeta el modulo contra el fondo
+        // del bolsillo. Apretar con los dedos: una tuerca contra un PCB
+        // desnudo, a llave, lo raja.
         for (s = [-1, 1])
             translate([s * pcb_hole_spacing / 2, -pod_arm + wall_t + 1,
                        -hirth_backing + body_h / 2])

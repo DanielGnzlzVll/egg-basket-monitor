@@ -24,7 +24,7 @@ de la celda (nunca sobre la celda).
 | 3 | Resistencias 1 MΩ 1% (×2) | `1M ohm 1% resistor` | 0.20 |
 | 4 | Dupont hembra-hembra 20 cm (pack 40) | `dupont female female 20cm` | 1-2 |
 | 5 | Termorretráctil surtido | `heat shrink tube assortment` | 1 |
-| 6 | Tornillería M3 + M2 (ver abajo) | `M3 hex socket screw assortment kit` | 2-3 |
+| 6 | Tornillería M3 + M2 (ver abajo, seguramente ya la tienes) | `M3 hex socket screw assortment kit` | 0-3 |
 
 ### Los dos ítems que importan
 
@@ -41,22 +41,32 @@ cortocircuito. No es negociable con una celda desnuda.
 
 ## Tornillería
 
+**Todo es tornillería de métrica normal. No hay ni un autorroscante.** Donde el
+tornillo no encuentra nada al otro lado, el CAD embute una tuerca hexagonal en
+la pieza y es ella la que hace de rosca: un hexágono a medida impide que gire,
+así que la pieza se comporta como si llevara un inserto. Aguanta apretar y
+aflojar indefinidamente, que es más de lo que da una rosca hecha en PLA.
+
 Las longitudes las calcula el propio modelo al compilar (`python cad/build.py`),
 así que si tocas una cota del CAD, vuelve a mirar aquí. Con las cotas actuales:
 
-| Dónde | Qué | Cantidad |
-|---|---|---|
-| Pivote de la articulación | M3×12 | 1 |
-| Placa → mordaza | M3×30 | 2 |
-| Apriete de los dos ganchos | M3×16 | 2 |
-| Caja → gancho | M3×14 | 2 |
-| Tapa de la caja | M3×10 autorroscante (rosca directo en el plástico) | 4 |
-| Módulo VL53L1X al pod | M2×6 autorroscante | 2 |
-| Tuercas M3 | 1 en el pomo, 2 en la placa, 2 en la espina de la caja | 5 |
+| Dónde | Tornillo | Tuerca | Cant. |
+|---|---|---|---|
+| Pivote de la articulación | M3×12 | 1, embutida en el pomo | 1 |
+| Placa → mordaza | M3×30 | 2, embutidas en la placa | 2 |
+| Apriete de los dos ganchos | M3×16 | 2, cautivas en el saliente | 2 |
+| Caja → gancho | M3×14 | 2, embutidas en la espina | 2 |
+| Tapa de la caja | M3×8 | 4, cautivas bajo la tapa | 4 |
+| Módulo VL53L1X al pod | M2×8 | 2, sueltas por detrás del PCB | 2 |
 
-Los tornillos de apriete de los ganchos y los de la tapa roscan directamente en
-el plástico: no llevan tuerca a propósito, porque con tuerca harían falta cabeza
-y tuerca las dos por fuera y nada haría de tope.
+**Total: 11 tornillos M3, 2 tornillos M2, 11 tuercas M3, 2 tuercas M2.**
+
+Dos detalles de montaje:
+
+- Las tuercas de las cuatro orejas de la tapa se caen si vuelcas la caja: se
+  ponen justo antes de cerrar, y es la tapa la que las retiene.
+- Las dos tuercas M2 del sensor aprietan contra un PCB desnudo. Con los dedos,
+  no con llave: a llave se raja.
 
 ## Dónde van las dos resistencias
 
@@ -64,18 +74,21 @@ El ESP32-C3 SuperMini no trae divisor de batería, así que hace falta uno de
 1 MΩ/1 MΩ para leer la tensión de la celda por GPIO3. **No lleva protoboard**:
 son dos componentes, se sueldan en línea sobre un Dupont y se aíslan con
 termorretráctil. Una miniprotoboard de 170 puntos mide 47×35 mm y no cabe en el
-vano de la caja, que tiene 29 mm de ancho.
+vano de la caja, que tiene 32 mm de ancho.
 
 El divisor consume 2.1 µA permanentes, despreciable frente a los ~500 µA del
 deep sleep de la placa.
 
 ## Lo que ya NO hace falta
 
-Dos ítems que estaban en la primera versión de la lista y han caído al avanzar
+Tres ítems que estaban en la primera versión de la lista y han caído al avanzar
 el CAD:
 
 - **Imanes de neodimio 6×3.** La caja iba a fijarse al mueble con imanes. Ahora
   cuelga del borde con su propio gancho impreso, igual que la cabeza del sensor.
+- **Tornillos autorroscantes.** Los usaban la tapa de la caja, los dos tornillos
+  de apriete y el módulo del sensor. Todos son ahora de métrica normal contra
+  tuerca; ver la tabla de arriba.
 - **Miniprotoboard de 170 puntos.** Ver arriba: no cabe y no hace falta.
 
 ## Piezas impresas

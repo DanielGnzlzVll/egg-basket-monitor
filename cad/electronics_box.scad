@@ -37,7 +37,9 @@ box_ceil  = 5;      // techo grueso: dentro va la lamina de laton
 divider_t = 2.0;
 
 cell_bay_w  = cell_d + 1;
-board_bay_w = max(tp_l, mcu_l) + 3;
+// +6 y no +3: los clones de AliExpress varian de tamano y este margen es lo
+// que permite meter un modulo 2-3 mm mayor sin volver a imprimir la caja.
+board_bay_w = max(tp_l, mcu_l) + 6;
 
 in_w = cell_bay_w + divider_t + board_bay_w;
 in_h = cell_l + 2;                       // cell_l ya lleva holgura dentro
@@ -56,20 +58,34 @@ cx  = x0 + cell_bay_w / 2;      // eje de la celda
 cz  = z0 + in_d / 2;
 bx0 = x0 + cell_bay_w + divider_t;   // inicio del vano de modulos
 
-tp_y  = y0 + 12;          // TP4056 abajo, ESP32 encima
-mcu_y = y0 + 31;
+// Tapa: cuatro orejas EXTERIORES, una por esquina, todas iguales.
+//
+// Antes eran dos bosses dentro y dos orejas fuera, y los tornillos roscaban
+// directos en el plastico. Al pasar a tuerca cautiva los bosses dejaron de
+// valer: en Ø7.5 no cabe una M3, que mide 7.16 de esquina a esquina y dejaria
+// 0.17 mm de pared. Agrandarlos a Ø11 tampoco: el unico hueco libre del vano
+// mide 2.75 mm. Asi que las cuatro se van fuera, donde hay sitio de sobra.
+//
+// Sale ganando el vano, que queda entero para los modulos y su cableado, y el
+// unico precio es 19 mm mas de ancho en una pieza que cuelga por fuera.
+ear_d  = 11;                             // Ø de la oreja (M3 + 1.9 de pared)
+ear_cx = [-4, out_w + 4];                // solapan 1.5 mm contra la pared
+lid_y  = [5.5, out_h - 5.5];
+
+// La tuerca va embutida en la CARA DE ARRIBA de la oreja, justo debajo de la
+// tapa, y es la tapa la que la mantiene en su sitio. Con la tuerca en la cara
+// de abajo harian falta tornillos de 25 mm que ademas asomarian por detras.
+ear_nut_z = out_d - nut_h - 0.3;
 
 // Los dos modulos van pegados a la pared +X, no centrados: los dos sacan el
 // USB-C por ahi y asi el conector queda enfrente de su agujero.
 board_gap = 1.5;          // del canto del modulo a la cara interior de la pared
+board_sep = 2;            // entre modulos, y del modulo a lo que tenga encima
 
-// Tapa: dos bosses interiores por el lado de los modulos y dos orejas
-// exteriores por el lado de la celda. No hay bosses interiores en ese lado
-// porque la celda ocupa el rincon entero.
-lid_y   = [y0 + 5, y0 + in_h - 5];
-boss_x  = out_w - box_wall - 6;
-ear_x   = -4;
-ear_w   = 8;
+// Apilados de abajo arriba desde el suelo. Derivados y no a mano para que al
+// corregir las cotas de un modulo real todo lo demas se recoloque solo.
+tp_y  = y0 + 6;
+mcu_y = tp_y + tp_w + board_sep;
 
 // Espina para colgar del gancho: engorda la zona alta del tabique para poder
 // embutir ahi dos tuercas M3.
@@ -122,20 +138,20 @@ module box() {
             // Espina con las tuercas del gancho.
             translate([hook_cx - 7, spine_y0, z0]) cube([14, spine_y1 - spine_y0, spine_z]);
 
-            // Bosses de la tapa, lado de los modulos.
-            for (y = lid_y) translate([boss_x, y, z0]) cylinder(d = box_boss_d, h = in_d);
-
-            // Orejas de la tapa, lado de la celda.
-            for (y = lid_y) translate([ear_x - ear_w / 2, y - 6, 0]) cube([ear_w, 12, out_d]);
+            // Orejas de la tapa, macizas de arriba abajo.
+            for (x = ear_cx, y = lid_y)
+                translate([x, y, 0]) cylinder(d = ear_d, h = out_d);
 
             board_frame(tp_l,  tp_w,  tp_y);
             board_frame(mcu_l, mcu_w, mcu_y);
         }
 
-        // --- Taladros de la tapa -------------------------------------------
-        for (y = lid_y) {
-            translate([boss_x, y, lid_z - 10]) cylinder(d = box_screw_d - 0.5, h = 10 + be);
-            translate([ear_x,  y, out_d - 10]) cylinder(d = box_screw_d - 0.5, h = 10 + be);
+        // --- Tapa: tuerca cautiva por arriba y paso para la punta -----------
+        for (x = ear_cx, y = lid_y) {
+            translate([x, y, ear_nut_z])
+                cylinder(d = nut_af / cos(30), h = nut_h + 0.3 + be, $fn = 6);
+            translate([x, y, ear_nut_z - 7])
+                cylinder(d = box_screw_d, h = 7 + be);
         }
 
         // --- Sujecion al gancho: pasante desde atras, tuerca por dentro -----
@@ -176,13 +192,11 @@ module lid() {
     difference() {
         union() {
             cube([out_w, out_h, box_lid_t]);
-            for (y = lid_y)
-                translate([ear_x - ear_w / 2, y - 6, 0]) cube([ear_w, 12, box_lid_t]);
+            for (x = ear_cx, y = lid_y)
+                translate([x, y, 0]) cylinder(d = ear_d, h = box_lid_t);
         }
-        for (y = lid_y) {
-            translate([boss_x, y, -1]) cylinder(d = box_screw_d, h = box_lid_t + 2);
-            translate([ear_x,  y, -1]) cylinder(d = box_screw_d, h = box_lid_t + 2);
-        }
+        for (x = ear_cx, y = lid_y)
+            translate([x, y, -1]) cylinder(d = box_screw_d, h = box_lid_t + 2);
         // Ventilacion sobre la celda. Una celda de litio en una caja estanca
         // en una cocina es justo lo que no hay que hacer.
         for (i = [0 : 4])
@@ -239,25 +253,45 @@ module assembly_raw() {
 
 // --- Seleccion de pieza ----------------------------------------------------
 echo(str("--- Caja de electronica ----------------------------------"));
-echo(str("  Exterior: ", out_w, " x ", out_h, " x ",
-         round((out_d + box_lid_t) * 10) / 10, " mm (mas orejas)"));
+echo(str("  Exterior: ", out_w + ear_d + 8, " x ", out_h, " x ",
+         round((out_d + box_lid_t) * 10) / 10, " mm (orejas incluidas)"));
 // El muelle es lo que hace que valga cualquier celda: da igual que sea una de
 // 65 sin proteger o una de 69 con PCB, el muelle come la diferencia.
 echo(str("  Hueco de ", in_h, " mm: acepta celdas de ",
          round(in_h - strip_t - 7), " a ", round(in_h - strip_t), " mm"));
-echo(str("  Tornilleria: 4x M3x10 autorroscante (tapa), 2x M3x",
-         ceil(clamp_wall + z0 + spine_z), " + 2 tuercas (gancho),",
-         " 1x M3x16 (apriete)"));
+// Ni un autorroscante: todo son tornillos de metrica normales, y donde no hay
+// nada al otro lado que haga de tuerca, la tuerca va embutida en la pieza.
+echo(str("  Tornilleria: ",
+         "4x M3x", ceil(box_lid_t + nut_h + 2.3), " + 4 tuercas (tapa), ",
+         "2x M3x", ceil(clamp_wall + z0 + spine_z), " + 2 tuercas (gancho), ",
+         "1x M3x16 + 1 tuerca (apriete, minimo ",
+         ceil(rim_hook_screw_len()), ")"));
 echo(str("=========================================================="));
 
 assert(spring_h < box_floor - 1.5, "El nicho del muelle atraviesa el suelo.");
-assert(tp_y > lid_y[0] + box_boss_d / 2,
-       "El TP4056 pisa el boss inferior de la tapa. Sube tp_y.");
-assert(tp_y + tp_w < mcu_y, "El TP4056 choca con el MCU.");
-assert(mcu_y + mcu_w < spine_y0,
-       "El modulo MCU choca con la espina del gancho. Baja mcu_y o sube in_h.");
-assert(mcu_y + mcu_w < lid_y[1] - box_boss_d / 2,
-       "El MCU pisa el boss superior de la tapa.");
+assert(ear_nut_z - 7 > 0, "El paso de la punta del tornillo atraviesa la oreja.");
+
+// Los dos que saltan si compras un modulo mas grande de lo previsto.
+assert(mcu_y + mcu_w + board_sep <= spine_y0,
+       str("Los modulos no caben a lo alto: sobran ",
+           mcu_y + mcu_w + board_sep - spine_y0,
+           " mm. Sube cell_l (la caja crece) o busca modulos mas estrechos."));
+for (l = [tp_l, mcu_l])
+    assert(out_w - box_wall - board_gap - l - fit - 1.5 >= bx0,
+           str("Un modulo de ", l, " mm no cabe a lo largo en el vano. ",
+               "Sube el margen de board_bay_w."));
+
+// Las orejas van pegadas por fuera a la pared +X, que es justo la que lleva
+// los dos huecos de USB. Si un hueco cae a la altura de una oreja la abre por
+// dentro y la tuerca se sale.
+for (b = [[tp_y, tp_w], [mcu_y, mcu_w]])
+    for (y = lid_y)
+        assert(abs(b[0] + b[1] / 2 - y) > (usb_w + ear_d) / 2,
+               str("El hueco de USB a ", b[0] + b[1] / 2,
+                   " mm choca con la oreja de la tapa a ", y,
+                   " mm. Mueve tp_y o lid_y."));
+
+assert(tp_y - 1.5 > y0, "El marco del TP4056 se sale por debajo del suelo.");
 assert(hook_cx - 7 > x0 + cell_bay_w - 1,
        "La espina del gancho invade el hueco de la celda. Sube hook_cx.");
 for (y = hook_hole_y) {

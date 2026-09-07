@@ -49,9 +49,13 @@ module rim_hook_ribs(grip_out, grip_in) {
         }
 }
 
-// Gancho solido, ya con el tornillo de apriete. El tornillo rosca directo en
-// el plastico del saliente y su punta empuja el borde; sin tuerca, porque con
-// tuerca harian falta cabeza Y tuerca las dos por fuera y nada haria de tope.
+// Gancho solido, ya con el tornillo de apriete. La punta del tornillo empuja
+// el borde de la canasta.
+//
+// La rosca la da una TUERCA CAUTIVA embutida en la cara exterior del saliente,
+// no el plastico: no se usan autorroscantes en ningun sitio del proyecto. El
+// hexagono impide que la tuerca gire, asi que el saliente se comporta como un
+// inserto roscado y el tornillo avanza al apretarlo, igual que antes.
 module rim_hook(w, grip_out, grip_in, pad, screw_z, ribs = true) {
     difference() {
         translate([0, w / 2, 0]) rotate([90, 0, 0])
@@ -61,9 +65,19 @@ module rim_hook(w, grip_out, grip_in, pad, screw_z, ribs = true) {
                     if (ribs) rim_hook_ribs(grip_out, grip_in);
                 }
 
+        // Alojamiento hexagonal, abierto hacia fuera para poder meter la
+        // tuerca con los dedos antes de colgar la pieza.
+        translate([-clamp_wall - hook_boss - hook_eps, 0, screw_z])
+            rotate([0, 90, 0]) rotate([0, 0, 30])
+                cylinder(d = nut_af / cos(30), h = nut_h + hook_eps, $fn = 6);
+
+        // Paso libre desde la tuerca hasta 1 mm mas alla de la cara interior:
+        // ese milimetro es el recorrido con el que la punta muerde el borde.
         translate([-clamp_wall - hook_boss - 1, 0, screw_z]) rotate([0, 90, 0])
-            cylinder(d = clamp_screw_d - 0.5, h = hook_boss + 1 + hook_eps);
-        translate([-clamp_wall, 0, screw_z]) rotate([0, 90, 0])
-            cylinder(d = clamp_screw_d, h = clamp_wall + 1.5);
+            cylinder(d = clamp_screw_d, h = hook_boss + clamp_wall + 2);
     }
 }
+
+// Longitud minima del tornillo de apriete, bajo cabeza. Se exporta para que
+// cada pieza que use el gancho la pueda echo-ar sin recalcularla.
+function rim_hook_screw_len() = hook_boss + clamp_wall + 3;

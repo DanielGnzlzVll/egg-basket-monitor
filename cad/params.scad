@@ -32,9 +32,22 @@ clamp_grip_out   = 20;    // mm que baja por fuera de la canasta
 clamp_grip_in    = 34;    // mm que baja por dentro
 clamp_clearance  = 0.8;   // holgura sobre rim_thickness
 clamp_screw_d    = 3.4;   // M3 pasante para el tornillo de apriete
-nut_af           = 6.2;   // entrecaras de la tuerca M3
-nut_h            = 2.8;   // espesor de la tuerca M3
 grip_ribs        = true;  // nervios antideslizantes dentro de la mordaza
+
+/* [Tornilleria] ----------------------------------------------------------
+   Todos los tornillos del proyecto son de METRICA NORMAL, de los de toda la
+   vida. Ni uno solo es autorroscante, a proposito: donde el tornillo no
+   encuentra nada al otro lado, se embute una tuerca hexagonal en la pieza y
+   es ella la que hace de rosca. Sale mas fiable que roscar en PLA —se puede
+   apretar y aflojar mil veces— y no obliga a comprar tornilleria especial.
+
+   Cotas DIN 934 nominales. Si tus tuercas son de otro sitio, midelas: la
+   holgura de estos alojamientos es cero a proposito, para que no giren.     */
+
+nut_af    = 6.2;   // entrecaras de la tuerca M3 (5.5 nominal + holgura)
+nut_h     = 2.8;   // espesor de la tuerca M3
+m2_nut_af = 4.2;   // entrecaras de la tuerca M2 (4.0 nominal + holgura)
+m2_nut_h  = 1.6;   // espesor de la tuerca M2
 
 /* [Placa de bisagra] -----------------------------------------------------
    Pieza plana que se atornilla a la cara lateral de la mordaza y lleva en su
@@ -100,16 +113,16 @@ pcb_l            = 25.0;  // mm, largo del PCB
 pcb_w            = 11.0;  // mm, ancho del PCB
 pcb_t            = 1.6;   // mm, espesor del PCB
 pcb_hole_spacing = 20.0;  // mm entre centros de los agujeros de montaje
-pcb_hole_d       = 2.1;   // mm, agujero para tornillo M2 autorroscante
+pcb_hole_d       = 2.3;   // mm, M2 PASANTE (no piloto: no se usan autorroscantes)
 pcb_pocket_clear = 0.4;   // holgura del bolsillo
 // Ventana optica. Tiene que dejar pasar el cono de 27 grados desde la
 // apertura del sensor a traves del material que queda por delante del PCB
 // (wall_t menos la profundidad del bolsillo, unos 4 mm):
 //     2 * (2.7 + 4*tan(13.5)) = 7.3 mm
-// Ø8 deja margen. No conviene agrandarla mas: el bolsillo solo mide 11.8 mm
-// de alto y una ventana mayor se lo comeria entero, dejando el PCB sin
-// apoyo por arriba y por abajo.
-window_d         = 8.0;   // mm
+// Y no mas: el bolsillo mide pcb_w + 0.8 de alto, asi que cada milimetro de
+// ventana se lo come al reborde donde apoya el PCB. Con Ø8 el apoyo bajaba a
+// 1.9 mm y el assert de sensor_head.scad salta. Ø7.5 deja 2.15 mm.
+window_d         = 7.5;   // mm
 optics_offset    = 0;     // mm, del centro del PCB al eje optico (medir)
 wire_channel_d   = 6.0;   // mm, canal para los 5 Dupont
 
@@ -156,7 +169,6 @@ usb_w = 12.5; usb_h = 7.5;
 box_wall    = 2.4;
 box_lid_t   = 2.4;
 box_screw_d = 3.4;   // M3 de la tapa
-box_boss_d  = 7.5;
 
 // Gancho de la caja: pata exterior larga (es donde se atornilla la caja) y
 // pata interior corta (solo tiene que enganchar).

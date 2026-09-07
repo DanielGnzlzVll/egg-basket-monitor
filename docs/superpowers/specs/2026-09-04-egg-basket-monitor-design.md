@@ -193,10 +193,33 @@ lámina de latón o clip metálico, cable USB-C, filamento PETG.
 | | **Total** | | **~8-12** |
 
 La lista completa, con las longitudes exactas de tornillo que calcula el modelo,
-vive en `docs/bom.md`. Dos ítems de la primera versión han caído: los **imanes
-de neodimio** (la caja ya cuelga del borde con su propio gancho) y la
-**miniprotoboard** (no cabe en el vano de 29 mm, y las dos resistencias del
-divisor se sueldan en línea sobre un Dupont).
+vive en `docs/bom.md`. Tres ítems de la primera versión han caído: los **imanes
+de neodimio** (la caja ya cuelga del borde con su propio gancho), los
+**autorroscantes** (ver abajo) y la **miniprotoboard** (no cabe en el vano de
+32 mm, y las dos resistencias del divisor se sueldan en línea sobre un Dupont).
+
+### Tornillería: métrica normal en todas partes
+
+Restricción del usuario, y de las que cambian geometría: tiene M2/M3/M4 de
+métrica normal a millares, y **ningún autorroscante**. Así que en el proyecto
+no hay ni uno. Donde el tornillo no encuentra nada al otro lado, se embute una
+tuerca hexagonal en la pieza impresa y es ella la que hace de rosca; el
+hexágono a medida impide que gire, y la pieza pasa a comportarse como si
+llevara un inserto roscado.
+
+Sale ganando el diseño, no solo la lista de la compra: una rosca hecha en PLA
+se pasa a la tercera o cuarta vez que la aprietas, y estas tres uniones —tapa
+de la caja, apriete de los ganchos, módulo del sensor— son justo las que se
+van a abrir y cerrar muchas veces durante el montaje y la calibración.
+
+Los tres sitios afectados y lo que costó cada uno:
+
+- **Apriete de los dos ganchos** (`lib/rim_hook.scad`). Tuerca cautiva en la
+  cara exterior del saliente. Cambio barato: el saliente ya medía 6 mm.
+- **Módulo VL53L1X al pod** (`sensor_head.scad`). El agujero pasa de piloto
+  Ø2,1 a pasante Ø2,3 y la tuerca M2 va suelta por detrás del PCB, que es
+  también lo que lo aprieta contra el fondo del bolsillo.
+- **Tapa de la caja** (`electronics_box.scad`). El caro. Ver abajo.
 
 **Nota sobre el ítem 1:** hay que pedir explícitamente la versión pequeña de
 3.3 V. Si el módulo trae un regulador AMS1117 (Iq ~5 mA), consume por sí solo
@@ -328,9 +351,9 @@ de cinco minutos y agotaba el timeout; el poliedro tarda quince segundos.
 
 **Las longitudes de tornillería las calcula el modelo y las imprime al
 compilar**, para que no se queden obsoletas al tocar una cota. Con las cotas
-actuales: pivote M3×12, placa-mordaza 2× M3×30, apriete M3×16 (sin tuerca), y
-2× M2×6 autorroscante para el módulo. (Los mínimos calculados son 10,2 / 28,8 /
-13,2 mm; se redondean al tamaño comercial siguiente.)
+actuales: pivote M3×12, placa-mordaza 2× M3×30, apriete M3×16 y 2× M2×8 para el
+módulo, todos contra tuerca. (Los mínimos calculados son 10,2 / 28,8 / 12,2 /
+7,7 mm; se redondean al tamaño comercial siguiente.)
 
 El orden de montaje importa, porque hay piezas que quedan cautivas: las dos
 tuercas de la placa y el perno del pivote se colocan **antes** de atornillar la
@@ -352,7 +375,7 @@ vez y que se arreglen las dos.
 
 ### Caja de electrónica: tres piezas *(implementada)*
 
-`cad/electronics_box.scad`. Exterior 55 × 81 × 24 mm más las orejas.
+`cad/electronics_box.scad`. Exterior 77 × 81 × 24 mm, orejas incluidas.
 
 | Pieza | Descripción | Orientación |
 |---|---|---|
@@ -373,13 +396,24 @@ Decisiones que no son obvias:
 - **El tornillo de apriete del gancho va arriba del todo y la caja cuelga por
   debajo.** Si se solaparan, el saliente de 6 mm del tornillo chocaría contra el
   fondo de la caja y esta no apoyaría plana contra la pata.
-- **Los tornillos de la tapa son dos bosses interiores por el lado de los
-  módulos y dos orejas exteriores por el lado de la celda.** No hay bosses
-  interiores en ese lado porque la celda ocupa el rincón entero.
+- **Los cuatro tornillos de la tapa van en orejas exteriores, no en bosses
+  interiores.** Es el precio de quitar los autorroscantes, y no era evidente de
+  antemano. Una tuerca M3 mide 7,16 mm de esquina a esquina, así que en un boss
+  de Ø7,5 no cabe: dejaría 0,17 mm de pared. Agrandarlo a Ø11 tampoco, porque
+  el único hueco libre del vano —una vez colocados el TP4056, el MCU y la
+  espina— mide 2,75 mm. Con las cuatro orejas fuera la caja pasa de 58 a 77 mm
+  de ancho, pero el vano queda entero para los módulos y su cableado, que es
+  donde el espacio hacía falta de verdad.
+- **La tuerca de cada oreja va embutida por arriba, justo bajo la tapa, y es la
+  tapa la que la retiene.** Con la tuerca por abajo harían falta tornillos de
+  25 mm que además asomarían por detrás, contra la pared de la canasta. Con
+  ella arriba bastan M3×8.
 
 El modelo se autocomprueba con `assert`: que el nicho del muelle no atraviese el
-suelo, que ningún módulo pise un boss de la tapa ni la espina del gancho, y que
-ningún tornillo del gancho caiga fuera de la pata o encima del de apriete.
+suelo, que ningún módulo pise la espina del gancho ni se salga del suelo, que
+ningún hueco de USB caiga a la altura de una oreja y la abra por dentro —la
+tuerca se saldría—, y que ningún tornillo del gancho caiga fuera de la pata o
+encima del de apriete.
 
 ### Piezas pendientes
 
