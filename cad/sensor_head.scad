@@ -46,6 +46,15 @@ rib_t = 3.0;   // nervios brazo-pared del pod
 rib_h = 12;
 rib_l = 12;
 
+// De la cara delantera de la pared a la cara lejana de la tuerca, pasando
+// por el fondo del bolsillo y el PCB.
+sensor_len = wall_t - pcb_pocket_clear + m2_nut_h + 0.5;
+
+echo(str("--- Tornilleria pod ------------------------------------------"));
+echo(str("  Sensor  M2 x ", round(sensor_len * 10) / 10,
+         " mm  x2 + 2 tuercas (sueltas, por detras del PCB)"));
+echo(str("=========================================================="));
+
 // --- Que modulos VL53L1X caben ---------------------------------------------
 pcb_support = (pcb_w + 2 * pcb_pocket_clear - window_d) / 2;
 echo(str("--- Modulo VL53L1X ---------------------------------------"));
