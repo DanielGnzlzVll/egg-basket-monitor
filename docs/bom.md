@@ -21,7 +21,7 @@ de la celda (nunca sobre la celda).
 |---|---|---|---|
 | 1 | Módulo VL53L1X, versión pequeña de 3.3 V | `VL53L1X module GY-53L1` | 3-6 |
 | 2 | TP4056 **con protección**, USB-C | `TP4056 USB-C protection DW01` | 0.60 |
-| 3 | Resistencias 1 MΩ 1% (×2) | `1M ohm 1% resistor` | 0.20 |
+| 3 | Resistencias 1 MΩ 1% (×2) — o cualquier par igual que ya tengas, ver nota abajo | `1M ohm 1% resistor` | 0.20 |
 | 4 | Dupont hembra-hembra 20 cm (pack 40) | `dupont female female 20cm` | 1-2 |
 | 5 | Termorretráctil surtido | `heat shrink tube assortment` | 1 |
 | 6 | Tornillería M3 + M2 (ver abajo, seguramente ya la tienes) | `M3 hex socket screw assortment kit` | 0-3 |
@@ -76,8 +76,18 @@ son dos componentes, se sueldan en línea sobre un Dupont y se aíslan con
 termorretráctil. Una miniprotoboard de 170 puntos mide 47×35 mm y no cabe en el
 vano de la caja, que tiene 32 mm de ancho.
 
-El divisor consume 2.1 µA permanentes, despreciable frente a los ~500 µA del
-deep sleep de la placa.
+El divisor consume 2.1 µA permanentes con 1 MΩ, despreciable frente a los
+~500 µA del deep sleep de la placa.
+
+**No hace falta que sean 1 MΩ exactos.** Lo único que importa es que las dos
+resistencias sean del mismo valor entre sí — el punto medio siempre queda a
+la mitad del voltaje de la batería sin importar la magnitud. Si tenés a mano
+un par de 100 kΩ (código de colores café-negro-amarillo), sirven igual: el
+consumo sube a ~21 µA, todavía chico frente a los ~500 µA de la placa
+(~0.5 mAh/día extra sobre un presupuesto total de ~16.6 mAh/día, un par de
+días menos de autonomía sobre ~4 meses). El firmware no cambia:
+`BATTERY_DIVIDER_RATIO` en `firmware/include/config.h` sigue siendo `2.0f`
+porque depende de que R1 = R2, no de su valor.
 
 ## Lo que ya NO hace falta
 

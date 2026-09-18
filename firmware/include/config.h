@@ -60,7 +60,10 @@ constexpr uint16_t SENSOR_ROI_HEIGHT = 4;
 // ---------------------------------------------------------------------------
 // Batería
 // ---------------------------------------------------------------------------
-constexpr float BATTERY_DIVIDER_RATIO = 2.0f;   // divisor 1M/1M
+// 2.0 porque el divisor usa dos resistencias IGUALES entre si (R1=R2): el
+// punto medio siempre queda a mitad de camino sin importar el valor absoluto
+// (1M/1M, 100k/100k, etc. dan el mismo 2.0). Solo cambia si R1 != R2.
+constexpr float BATTERY_DIVIDER_RATIO = 2.0f;
 constexpr float BATTERY_CUTOFF_VOLTS = 3.3f;
 
 // ---------------------------------------------------------------------------

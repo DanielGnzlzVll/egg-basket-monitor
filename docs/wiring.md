@@ -2,8 +2,10 @@
 
 Componentes: **ESP32-C3 SuperMini**, sensor ToF **VL53L1X** (módulo pequeño
 GY-53L1, 3.3 V), cargador **TP4056 con protección**, celda **18650**, divisor
-resistivo 1 MΩ/1 MΩ. Nada se suelda a la celda; ver `docs/bom.md` para el
-resto de materiales y `cad/` para las piezas que sostienen todo esto físicamente.
+resistivo de dos resistencias iguales (1 MΩ/1 MΩ nominal, pero sirve
+cualquier par igual — ver la sección "Cadena de alimentación" más abajo).
+Nada se suelda a la celda; ver `docs/bom.md` para el resto de materiales y
+`cad/` para las piezas que sostienen todo esto físicamente.
 
 ## Diagramas
 
@@ -38,7 +40,7 @@ constexpr int PIN_I2C_SDA = GPIO4_SDA; // nombre que usa el resto del firmware
 | SDA (bus I2C) | GPIO4 | VL53L1X SDA | Se evita el I2C por defecto del C3: GPIO8 es el LED RGB integrado y GPIO9 es el botón BOOT |
 | SCL (bus I2C) | GPIO5 | VL53L1X SCL | Ídem |
 | XSHUT | GPIO6 | VL53L1X XSHUT | Bajo = standby (~5 µA); el firmware lo maneja para apagar el sensor entre lecturas |
-| ADC batería | GPIO3 | Nodo medio del divisor 1MΩ/1MΩ | Único ADC libre tras reservar 4/5/6 |
+| ADC batería | GPIO3 | Nodo medio del divisor (dos resistencias iguales) | Único ADC libre tras reservar 4/5/6 |
 | Botón BOOT / config | GPIO9 | Botón BOOT de la placa | Reutilizado: sostenerlo al arrancar decide el modo (ver `docs/setup-tutorial.md`) |
 | LED de estado | GPIO8 | LED RGB integrado de la placa | Uso nativo del pin; solo importa como strapping *durante* el reset, no después |
 | 3V3 / GND | — | VL53L1X VCC / GND | Rieles de alimentación de la placa, sin número de GPIO |
@@ -54,8 +56,18 @@ es unidireccional, ESP32 → sensor).
 ```
 18650 (B+/B-) → TP4056 con protección (OUT+/OUT-)
              → pin 5V del ESP32-C3 SuperMini → LDO onboard → riel 3V3
-                                              → divisor 1MΩ/1MΩ → GPIO3
+                                              → divisor (R1=R2) → GPIO3
 ```
+
+**El divisor no tiene que ser 1 MΩ/1 MΩ exactos.** Lo único que importa es
+que las dos resistencias sean iguales entre sí: el punto medio siempre cae a
+la mitad del voltaje de la batería sin importar la magnitud
+(`V_medio = V_bateria × R2/(R1+R2)`, que da `V_bateria/2` cuando `R1=R2`).
+Con un par de 100 kΩ (código de colores café-negro-amarillo) el divisor
+consume ~21 µA en vez de ~2.1 µA — sigue siendo despreciable frente a los
+~500 µA del deep sleep de la placa (ver `docs/bom.md`). El firmware no
+cambia: `BATTERY_DIVIDER_RATIO` en `firmware/include/config.h` es `2.0f`
+porque depende de que R1=R2, no de su valor absoluto.
 
 **Riesgo abierto, a verificar con hardware en mano:** alimentar el pin 5V
 directo con 3.7-4.2 V (el rango de una celda de litio) solo funciona bien si
