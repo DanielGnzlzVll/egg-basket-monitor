@@ -305,6 +305,11 @@ Se usa **OpenSCAD** en lugar de Fusion 360: es texto plano, versionable y
 diffeable en un repo público, y se puede editar directamente desde el editor.
 Todas las cotas viven en `cad/params.scad`.
 
+> **Actualización 2026-09-18:** `clamp`+`hook` se fusionaron en una sola
+> pieza (`mount`) y la bisagra Hirth se reemplazó por un pivote de fricción.
+> Las secciones de abajo describen el diseño original; el estado actual vive
+> en `docs/superpowers/specs/2026-09-18-cad-rim-mount-redesign-design.md`.
+
 ### Cabeza del sensor: cuatro piezas *(implementada)*
 
 `cad/sensor_head.scad` genera las cuatro piezas según la variable `part`. Se

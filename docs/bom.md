@@ -52,14 +52,18 @@ así que si tocas una cota del CAD, vuelve a mirar aquí. Con las cotas actuales
 
 | Dónde | Tornillo | Tuerca | Cant. |
 |---|---|---|---|
-| Pivote de la articulación | M3×12 | 1, embutida en el pomo | 1 |
-| Placa → mordaza | M3×30 | 2, embutidas en la placa | 2 |
-| Apriete de los dos ganchos | M3×16 | 2, cautivas en el saliente | 2 |
-| Caja → gancho | M3×14 | 2, embutidas en la espina | 2 |
+| Pivote de la bisagra de fricción | M3×16 (mínimo 15.8) | 1, en el pomo | 1 + 1 arandela suelta |
+| Apriete del mount al borde | M3×16 (mínimo 12.2) | 1, cautiva en el saliente | 1 |
+| Mount → caja (interfaz heredada del gancho original) | M3×14 | 2, embutidas en la espina de la caja | 2 |
 | Tapa de la caja | M3×8 | 4, cautivas bajo la tapa | 4 |
-| Módulo VL53L1X al pod | M2×8 | 2, sueltas por detrás del PCB | 2 |
+| Módulo VL53L1X al pod | M2×8 (mínimo 7.7) | 2, sueltas por detrás del PCB | 2 |
 
-**Total: 11 tornillos M3, 2 tornillos M2, 11 tuercas M3, 2 tuercas M2.**
+**Total: 8 tornillos M3, 2 tornillos M2, 8 tuercas M3, 2 tuercas M2, 1 arandela M3.**
+
+`clamp`, `plate` y `hook` desaparecieron en el rediseño de 2026-09-18: se
+fusionaron en una sola pieza (`mount`) con un solo punto de apriete, y la
+bisagra Hirth se reemplazó por fricción pura (tornillo + arandela, sin
+detentes). Ver `docs/superpowers/specs/2026-09-18-cad-rim-mount-redesign-design.md`.
 
 Dos detalles de montaje:
 
@@ -103,18 +107,16 @@ el CAD:
 
 ## Piezas impresas
 
-Siete, ninguna necesita soportes. `python cad/build.py` las exporta todas a
+Cinco, ninguna necesita soportes. `python cad/build.py` las exporta todas a
 `cad/out/`.
 
 | Pieza | Orientación |
 |---|---|
-| `clamp` | De canto |
-| `plate` | Plana, dientes hacia arriba |
-| `pod` | Plana, dientes hacia arriba |
+| `mount` | De canto |
+| `pod` | Con la oreja de la bisagra hacia arriba |
 | `knob` | Plana |
 | `box` | Boca hacia arriba |
 | `lid` | Plana |
-| `hook` | De canto |
 
 ⚠️ **Janus (Voron Trident)** tiene `[homing_override]` en Z que arranca con
 `G0 Z10` y cruza la cama en diagonal. Retira cualquier pieza alta de la cama
