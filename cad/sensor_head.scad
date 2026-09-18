@@ -162,8 +162,11 @@ module basket_context() {
 
 module assembly() {
     basket_context();
+    // rotate(-90) en X, no +90: con +90 la oreja del pod terminaria ocupando
+    // el mismo tramo de Y que la oreja del mount (colision) en vez de
+    // extenderse hacia afuera, donde va el pomo.
     color("Crimson") translate([px, y_pod, pz])
-        rotate([90, 0, 0]) rotate([0, 0, angle_preview]) pod();
+        rotate([-90, 0, 0]) rotate([0, 0, angle_preview]) pod();
     color("DimGray") translate([px, y_pod + hinge_ear_t + 1, pz])
         rotate([-90, 0, 0]) knob();
 }
