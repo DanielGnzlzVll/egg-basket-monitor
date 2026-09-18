@@ -112,7 +112,9 @@ sostener el botón.
 
 El emisor del VL53L1X dispara un cono fijo de 27° que no se puede estrechar;
 solo el receptor admite ROI reducido (hasta 15° con 4×4 SPADs), que es lo que
-usa este firmware. El ángulo físico de montaje se ajusta con la articulación
-Hirth impresa (`cad/sensor_head.scad`), no por software. Los detalles de por
-qué el rango útil es 8-20° desde la vertical están en
-`docs/superpowers/specs/2026-09-04-egg-basket-monitor-design.md`.
+usa este firmware. El ángulo físico de montaje se ajusta con la bisagra de
+fricción del `pod` (`cad/sensor_head.scad` + `cad/rim_mount.scad`), no por
+software. Los detalles de por qué el rango útil es el que calcula
+`lib/geometry.scad` están en
+`docs/superpowers/specs/2026-09-04-egg-basket-monitor-design.md` y en
+`docs/superpowers/specs/2026-09-18-cad-rim-mount-redesign-design.md`.

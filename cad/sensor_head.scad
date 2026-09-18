@@ -84,6 +84,14 @@ module pod() {
     pocket_w = pcb_w + 2 * pcb_pocket_clear;
     body_h   = pocket_w + 2 * clamp_wall;
 
+    // mirror([0,0,1]): la oreja y el brazo quedan en Z local <= 0 en vez de
+    // >= 0. Sin esto, la unica rotacion que separa la oreja del pod de la
+    // del mount (evitando que ocupen el mismo tramo de Y) es rotate(-90) en
+    // X, pero esa MISMA rotacion invierte la direccion de apuntado del
+    // sensor (apunta hacia el borde en vez de hacia el fondo). Con el
+    // mirror, rotate(+90) en X -que es la que apunta bien- tambien separa
+    // las orejas correctamente. Ver assembly() mas abajo.
+    mirror([0, 0, 1])
     difference() {
         union() {
             // Oreja de friccion: reemplaza al disco Hirth. Un disco liso
@@ -171,11 +179,11 @@ module basket_context() {
 
 module assembly() {
     basket_context();
-    // rotate(-90) en X, no +90: con +90 la oreja del pod terminaria ocupando
-    // el mismo tramo de Y que la oreja del mount (colision) en vez de
-    // extenderse hacia afuera, donde va el pomo.
+    // rotate(+90) en X: es la que apunta el sensor hacia el fondo de la
+    // canasta (-Z). El mirror() dentro de pod() es lo que evita que su
+    // oreja choque con la del mount con esta misma rotacion.
     color("Crimson") translate([px, y_pod, pz])
-        rotate([-90, 0, 0]) rotate([0, 0, angle_preview]) pod();
+        rotate([90, 0, 0]) rotate([0, 0, angle_preview]) pod();
     color("DimGray") translate([px, y_pod + hinge_ear_t + 1, pz])
         rotate([-90, 0, 0]) knob();
 }

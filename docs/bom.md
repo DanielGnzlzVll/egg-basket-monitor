@@ -13,7 +13,7 @@ de la celda (nunca sobre la celda).
 | Resorte de bolígrafo | Contacto negativo. Es lo que absorbe la diferencia de largo entre celdas |
 | Lámina de latón o clip metálico | Contacto positivo |
 | Cable USB-C | Para cargar y para flashear |
-| Filamento PETG | ~90 g entre las siete piezas. PETG y no PLA: la cocina tiene calor y grasa |
+| Filamento PETG | ~90 g entre las cinco piezas. PETG y no PLA: la cocina tiene calor y grasa |
 
 ## Hay que comprar — AliExpress, ~USD 8-12
 

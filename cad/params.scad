@@ -28,8 +28,7 @@ wall_margin  = 20;      // mm que el borde del ROI debe dejar libres contra
 
 clamp_width      = 26;    // mm a lo largo del borde
 clamp_wall       = 3.2;   // mm de pared
-clamp_grip_out   = 20;    // mm que baja por fuera de la canasta
-clamp_grip_in    = 34;    // mm que baja por dentro
+clamp_grip_in    = 34;    // mm que baja por dentro (pata del brazo del sensor)
 clamp_clearance  = 0.8;   // holgura sobre rim_thickness
 clamp_screw_d    = 3.4;   // M3 pasante para el tornillo de apriete
 grip_ribs        = true;  // nervios antideslizantes dentro de la mordaza
@@ -71,8 +70,8 @@ hinge_ear_w    = 22;    // mm, ancho x alto de cada oreja (mount y pod)
 hinge_ear_t    = 5;     // mm, espesor de cada oreja
 hinge_arm_t    = 5;     // mm, espesor del brazo que conecta la pata del
                         // mount con la oreja (mismo grosor que la oreja)
-hinge_washer_d = 7;     // mm, diametro de apoyo de la arandela M3 entre
-                        // las dos orejas
+                        // Entre las dos orejas va una arandela M3 suelta,
+                        // sin modelar: es hardware de compra, no impreso.
 
 /* [Angulo de apuntado] ---------------------------------------------------
    0 grados = mirando recto hacia abajo, pegado a la pared.
@@ -81,7 +80,8 @@ hinge_washer_d = 7;     // mm, diametro de apoyo de la arandela M3 entre
 
 angle_min     = 0;
 angle_max     = 30;
-angle_preview = 16;    // solo para la vista de ensamblaje (debe ser un detente valido)
+angle_preview = 16;    // solo para la vista de ensamblaje (debe caer dentro
+                       // del rango que calcula lib/geometry.scad)
 
 /* [Modulo VL53L1X] -------------------------------------------------------
    MEDIR EL MODULO REAL CUANDO LLEGUE. Los breakout de AliExpress varian
@@ -157,10 +157,7 @@ box_screw_d = 3.4;   // M3 de la tapa
    a partir de otras cotas de la caja (in_h, out_h, etc.): son una foto fija
    del objeto real. Si algun dia se reimprime la caja con otras cotas, hay
    que actualizar este bloque a mano.                                       */
-box_hook_w        = 26;    // pata exterior larga (donde se atornilla la caja)
-box_hook_out      = 40;    // y pata interior corta (solo tiene que enganchar)
-box_hook_in       = 18;
-box_hook_pad      = 3.2;
+box_hook_out      = 40;    // pata exterior larga, donde el mount se atornilla a la caja
 box_hook_screw_z  = -7;    // arriba del todo, para no chocar con la caja colgada
 box_iface_hole_z  = [-26, -34]; // = -(box_hang_drop + out_h - y), y en [71, 63]
                                 // con box_hang_drop=16 y out_h=81 (cell_l=68)
