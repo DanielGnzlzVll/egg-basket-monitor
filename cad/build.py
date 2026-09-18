@@ -21,8 +21,9 @@ OUT = HERE / "out"
 # En que archivo vive cada pieza. Los nombres de pieza son unicos en todo el
 # proyecto a proposito, para poder pedirlas por nombre sin decir el archivo.
 MODELS = {
-    "sensor_head.scad": ["clamp", "plate", "pod", "knob"],
-    "electronics_box.scad": ["box", "lid", "hook"],
+    "sensor_head.scad": ["pod", "knob"],
+    "electronics_box.scad": ["box", "lid"],
+    "rim_mount.scad": ["mount"],
 }
 PART_MODEL = {p: HERE / m for m, ps in MODELS.items() for p in ps}
 PARTS = list(PART_MODEL)
