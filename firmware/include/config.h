@@ -4,15 +4,30 @@
 
 // ---------------------------------------------------------------------------
 // Pinout — ver docs/wiring.md para el diagrama completo.
-// Se evitan los pines I2C por defecto del C3 SuperMini (GPIO8/9): GPIO8 es
-// el LED RGB integrado y GPIO9 es el botón BOOT.
+//
+// En el ESP32-C3 SuperMini el número serigrafiado junto a cada pin ES el
+// número de GPIO (el pin marcado "4" en la placa es GPIO4): no hay alias
+// tipo D0/D1 como en otras placas Arduino/ESP8266. Por eso cada constante de
+// abajo lleva el número tal cual aparece impreso en la placa (GPIOx_...) y
+// además un alias con el nombre funcional (PIN_...) que es el que usa el
+// resto del firmware.
+//
+// Se evita el bus I2C por defecto del C3 (GPIO8/GPIO9) porque GPIO8 es el
+// LED RGB integrado y GPIO9 es el botón BOOT; el I2C se remapea a GPIO4/5.
 // ---------------------------------------------------------------------------
-constexpr int PIN_I2C_SDA = 4;
-constexpr int PIN_I2C_SCL = 5;
-constexpr int PIN_XSHUT = 6;
-constexpr int PIN_BATTERY_ADC = 3;
-constexpr int PIN_BOOT_BUTTON = 9;   // activo en bajo, pull-up interno
-constexpr int PIN_STATUS_LED = 8;    // RGB integrado del C3 SuperMini
+constexpr int GPIO4_SDA = 4;          // marcado "4" en la placa
+constexpr int GPIO5_SCL = 5;          // marcado "5" en la placa
+constexpr int GPIO6_XSHUT = 6;        // marcado "6" en la placa
+constexpr int GPIO3_BATTERY_ADC = 3;  // marcado "3" en la placa
+constexpr int GPIO9_BOOT = 9;         // marcado "9" en la placa; boton BOOT integrado
+constexpr int GPIO8_LED = 8;          // marcado "8" en la placa; LED RGB integrado
+
+constexpr int PIN_I2C_SDA = GPIO4_SDA;
+constexpr int PIN_I2C_SCL = GPIO5_SCL;
+constexpr int PIN_XSHUT = GPIO6_XSHUT;
+constexpr int PIN_BATTERY_ADC = GPIO3_BATTERY_ADC;
+constexpr int PIN_BOOT_BUTTON = GPIO9_BOOT;  // activo en bajo, pull-up interno
+constexpr int PIN_STATUS_LED = GPIO8_LED;
 
 // La mayoría de las placas "C3 SuperMini" traen un WS2812 direccionable en
 // GPIO8. Algunas variantes traen en cambio un LED simple de un solo color.
