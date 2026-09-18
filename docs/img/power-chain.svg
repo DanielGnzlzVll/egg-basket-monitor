@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 260" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2b2f36"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill:#f4f6f8; stroke:#2b2f36; stroke-width:2; }
+    .label { fill:#2b2f36; font-weight:600; }
+    .pin { fill:#5b6270; font-size:12px; }
+    .arrow { stroke:#2b2f36; stroke-width:2; fill:none; marker-end:url(#arrow); }
+  </style>
+
+  <rect class="box" x="10" y="80" width="140" height="80"/>
+  <text class="label" x="25" y="110">Celda 18650</text>
+  <text class="pin" x="25" y="130">3000 mAh</text>
+
+  <rect class="box" x="200" y="80" width="160" height="80"/>
+  <text class="label" x="215" y="105">TP4056</text>
+  <text class="pin" x="215" y="123">con proteccion</text>
+  <text class="pin" x="215" y="140">B+/B- -&gt; OUT+/OUT-</text>
+
+  <rect class="box" x="410" y="80" width="180" height="80"/>
+  <text class="label" x="425" y="105">ESP32-C3 SuperMini</text>
+  <text class="pin" x="425" y="123">pin 5V -&gt; LDO onboard</text>
+  <text class="pin" x="425" y="140">-&gt; riel 3V3</text>
+
+  <rect class="box" x="640" y="20" width="160" height="70"/>
+  <text class="label" x="655" y="45">Divisor 1M/1M</text>
+  <text class="pin" x="655" y="63">nodo medio -&gt; GPIO3</text>
+
+  <rect class="box" x="640" y="150" width="160" height="70"/>
+  <text class="label" x="655" y="175">VL53L1X</text>
+  <text class="pin" x="655" y="193">VCC 3V3 / GND</text>
+
+  <rect class="box" x="850" y="20" width="130" height="70"/>
+  <text class="label" x="862" y="50">Lectura de</text>
+  <text class="label" x="862" y="68">bateria (ADC)</text>
+
+  <rect class="box" x="850" y="150" width="130" height="70"/>
+  <text class="label" x="862" y="180">Medicion de</text>
+  <text class="label" x="862" y="198">distancia (I2C)</text>
+
+  <path class="arrow" d="M150,120 H200"/>
+  <path class="arrow" d="M360,120 H410"/>
+  <path class="arrow" d="M590,105 C610,105 610,55 640,55"/>
+  <path class="arrow" d="M590,135 C610,135 610,185 640,185"/>
+  <path class="arrow" d="M800,55 H850"/>
+  <path class="arrow" d="M800,185 H850"/>
+
+  <text x="10" y="230" font-size="13" fill="#5b6270">
+    Riesgo abierto: si el LDO onboard es un AMS1117 (dropout 1.1V), el sistema muere por debajo de ~4.4V.
+  </text>
+  <text x="10" y="248" font-size="13" fill="#5b6270">
+    Medir con fuente variable; si aplica, alimentar 3V3 desde un HT7333 en vez de usar el pin 5V.
+  </text>
+</svg>

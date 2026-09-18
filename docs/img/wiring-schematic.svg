@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 640" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <style>
+    .box { fill:#f4f6f8; stroke:#2b2f36; stroke-width:2; rx:8; }
+    .label { fill:#2b2f36; font-weight:600; }
+    .pin { fill:#5b6270; font-size:12px; }
+    .wire { stroke-width:2.5; fill:none; }
+    .w-pos { stroke:#c0392b; }
+    .w-gnd { stroke:#1a1a1a; }
+    .w-sda { stroke:#e6a700; }
+    .w-scl { stroke:#2e8b57; }
+    .w-xshut { stroke:#2266cc; }
+    .w-adc { stroke:#d35400; }
+    .w-btn { stroke:#7f57c2; }
+    .legend text { font-size:12px; fill:#2b2f36; }
+  </style>
+
+  <!-- 18650 cell -->
+  <rect class="box" x="20" y="40" width="150" height="80"/>
+  <text class="label" x="35" y="70">Celda 18650</text>
+  <text class="pin" x="35" y="90">3.0 - 4.2 V</text>
+  <text class="pin" x="35" y="106">B+ / B-</text>
+
+  <!-- TP4056 -->
+  <rect class="box" x="230" y="40" width="170" height="90"/>
+  <text class="label" x="245" y="65">TP4056</text>
+  <text class="pin" x="245" y="83">con proteccion</text>
+  <text class="pin" x="245" y="99">(DW01A + FS8205A)</text>
+  <text class="pin" x="245" y="118">OUT+ / OUT-</text>
+
+  <!-- ESP32-C3 SuperMini -->
+  <rect class="box" x="470" y="20" width="230" height="280"/>
+  <text class="label" x="485" y="45">ESP32-C3 SuperMini</text>
+  <text class="pin" x="485" y="65">pin 5V (a LDO onboard)</text>
+  <text class="pin" x="485" y="100">GPIO4  -&gt; SDA</text>
+  <text class="pin" x="485" y="125">GPIO5  -&gt; SCL</text>
+  <text class="pin" x="485" y="150">GPIO6  -&gt; XSHUT</text>
+  <text class="pin" x="485" y="175">GPIO3  -&gt; ADC bateria</text>
+  <text class="pin" x="485" y="200">GPIO9  -&gt; BOOT (integrado)</text>
+  <text class="pin" x="485" y="225">GPIO8  -&gt; LED RGB (integrado)</text>
+  <text class="pin" x="485" y="260">3V3 / GND</text>
+
+  <!-- VL53L1X module -->
+  <rect class="box" x="770" y="40" width="180" height="140"/>
+  <text class="label" x="785" y="65">VL53L1X</text>
+  <text class="pin" x="785" y="83">modulo GY-53L1 3.3V</text>
+  <text class="pin" x="785" y="108">VCC (3V3)</text>
+  <text class="pin" x="785" y="128">GND</text>
+  <text class="pin" x="785" y="148">SDA / SCL</text>
+  <text class="pin" x="785" y="168">XSHUT</text>
+
+  <!-- Battery divider -->
+  <rect class="box" x="230" y="220" width="170" height="100"/>
+  <text class="label" x="245" y="245">Divisor bateria</text>
+  <text class="pin" x="245" y="265">R1 = 1M (a pin 5V/OUT+)</text>
+  <text class="pin" x="245" y="285">R2 = 1M (a GND)</text>
+  <text class="pin" x="245" y="305">nodo medio -&gt; GPIO3</text>
+
+  <!-- Wires: cell -> TP4056 -->
+  <path class="wire w-pos" d="M170,60 H230"/>
+  <path class="wire w-gnd" d="M170,100 H230"/>
+
+  <!-- TP4056 -> ESP32 5V -->
+  <path class="wire w-pos" d="M400,60 H470"/>
+  <path class="wire w-gnd" d="M400,110 H440 V270 H470"/>
+
+  <!-- TP4056 OUT -> divider top -->
+  <path class="wire w-pos" d="M315,130 V240 H230"/>
+
+  <!-- divider -> GND -->
+  <path class="wire w-gnd" d="M315,320 V340 H190 V110 H230" stroke-dasharray="1,0"/>
+
+  <!-- divider mid -> GPIO3 -->
+  <path class="wire w-adc" d="M400,265 H440 V175 H470"/>
+
+  <!-- ESP32 <-> VL53L1X -->
+  <path class="wire w-sda" d="M700,105 H770"/>
+  <path class="wire w-scl" d="M700,130 H770"/>
+  <path class="wire w-xshut" d="M700,155 H770"/>
+  <path class="wire w-pos" d="M700,255 H730 V113 H770"/>
+  <text class="pin" x="705" y="248">3V3</text>
+  <path class="wire w-gnd" d="M700,270 H745 V133 H770"/>
+  <text class="pin" x="705" y="283">GND</text>
+
+  <!-- Legend -->
+  <g class="legend" transform="translate(20,360)">
+    <text x="0" y="0" font-weight="700">Leyenda</text>
+    <line x1="0" y1="14" x2="30" y2="14" class="wire w-pos"/><text x="36" y="18">V+ / OUT+</text>
+    <line x1="0" y1="34" x2="30" y2="34" class="wire w-gnd"/><text x="36" y="38">GND</text>
+    <line x1="0" y1="54" x2="30" y2="54" class="wire w-sda"/><text x="36" y="58">SDA (I2C)</text>
+    <line x1="0" y1="74" x2="30" y2="74" class="wire w-scl"/><text x="36" y="78">SCL (I2C)</text>
+    <line x1="0" y1="94" x2="30" y2="94" class="wire w-xshut"/><text x="36" y="98">XSHUT</text>
+    <line x1="0" y1="114" x2="30" y2="114" class="wire w-adc"/><text x="36" y="118">Divisor -&gt; ADC bateria</text>
+  </g>
+
+  <text x="20" y="560" font-size="13" fill="#5b6270">
+    Nota: verificar con fuente variable si el LDO del C3 SuperMini es de baja caida (ME6211/SGM2212)
+  </text>
+  <text x="20" y="580" font-size="13" fill="#5b6270">
+    antes de confiar el pin 5V con 3.7-4.2V. Si es un AMS1117, alimentar 3V3 desde un HT7333 en su lugar.
+  </text>
+  <text x="20" y="605" font-size="13" fill="#5b6270">
+    Ver docs/superpowers/specs/2026-09-04-egg-basket-monitor-design.md, seccion "Conexionado".
+  </text>
+</svg>
