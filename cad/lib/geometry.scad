@@ -41,17 +41,27 @@ function aims_ok(t, span) = near_hit(t) >= wall_margin
 
 // --- Que lado conviene -----------------------------------------------------
 // Se prueba a apuntar a traves de cada una de las dos dimensiones de la boca
-// y gana la que admita mas posiciones de detente.
-candidates = [for (a = [0 : detent_step : 60]) a];
+// y gana la que admita el rango de angulos mas ancho.
+//
+// scan_step es solo la resolucion numerica de esta busqueda: con la bisagra
+// de friccion no hay detentes fisicos, el angulo se fija por friccion en
+// cualquier punto de un rango continuo. No tiene relacion con ninguna pieza.
+scan_step  = 0.25;
+candidates = [for (a = [0 : scan_step : 60]) a];
 
-function detents_for(span) = [for (a = candidates) if (aims_ok(a, span)) a];
+function valid_angles(span) = [for (a = candidates) if (aims_ok(a, span)) a];
 
-det_across_width = detents_for(basket_width);
-det_across_depth = detents_for(basket_depth);
+valid_width = valid_angles(basket_width);
+valid_depth = valid_angles(basket_depth);
 
-mount_on_short_side = len(det_across_width) >= len(det_across_depth);
-aim_span       = mount_on_short_side ? basket_width : basket_depth;
-usable_detents = mount_on_short_side ? det_across_width : det_across_depth;
+function span_of(v) = len(v) == 0 ? 0 : (v[len(v) - 1] - v[0]);
+
+mount_on_short_side = span_of(valid_width) >= span_of(valid_depth);
+aim_span    = mount_on_short_side ? basket_width : basket_depth;
+valid_range = mount_on_short_side ? valid_width : valid_depth;
+
+theta_lo = len(valid_range) > 0 ? valid_range[0] : 0;
+theta_hi = len(valid_range) > 0 ? valid_range[len(valid_range) - 1] : 0;
 
 echo(str("=========================================================="));
 echo(str("  Canasta: ", basket_width, " x ", basket_depth,
@@ -60,22 +70,22 @@ echo(str("  ROI del receptor: ", roi_fov, " grados (+/- ", roi_half, ")"));
 echo(str("  Sensor a ", round(pod_reach + pod_arm), " mm de la pared como",
          " maximo, y ", round(pivot_drop + pod_arm), " mm por debajo del borde"));
 echo(str("----------------------------------------------------------"));
-echo(str("  Detentes validos apuntando a traves de los ", basket_width,
-         " mm: ", det_across_width));
-echo(str("  Detentes validos apuntando a traves de los ", basket_depth,
-         " mm: ", det_across_depth));
+echo(str("  Rango valido apuntando a traves de los ", basket_width,
+         " mm: ", round(theta_lo * 10) / 10, " - ", round(theta_hi * 10) / 10,
+         " grados (", span_of(valid_width), " grados de margen)"));
+echo(str("  Rango valido apuntando a traves de los ", basket_depth,
+         " mm: (", span_of(valid_depth), " grados de margen)"));
 echo(str("----------------------------------------------------------"));
 echo(str("  >> MONTAR LA MORDAZA EN MITAD DEL LADO ",
          mount_on_short_side ? "CORTO" : "LARGO",
          ", apuntando a traves de los ", aim_span, " mm"));
-echo(str("  >> Posiciones utilizables: ", usable_detents, " grados"));
+echo(str("  >> Rango util de la bisagra de friccion: ",
+         round(theta_lo * 10) / 10, " - ", round(theta_hi * 10) / 10, " grados"));
 
 // --- Distancia que va a leer el sensor -------------------------------------
 // Estas son las cifras con las que hay que calibrar d_vacia y d_llena en
-// Grafana. Si cambias de detente, cambian.
-theta_nom = len(usable_detents) > 0
-              ? usable_detents[floor(len(usable_detents) / 2)]
-              : 0;
+// Grafana. Si cambias el angulo de apriete, cambian.
+theta_nom = (theta_lo + theta_hi) / 2;
 
 h_nom    = sensor_h(theta_nom);
 d_empty  = h_nom / cos(theta_nom);
@@ -83,7 +93,7 @@ egg_pile = 100;                 // mm de huevos apilados, estimacion
 d_full   = (h_nom - egg_pile) / cos(theta_nom);
 
 echo(str("----------------------------------------------------------"));
-echo(str("  Detente nominal: ", theta_nom, " grados"));
+echo(str("  Angulo nominal (centro del rango): ", theta_nom, " grados"));
 echo(str("  El ROI barre del mm ", round(near_hit(theta_nom)),
          " al ", round(far_hit(theta_nom)), " sobre un vano de ",
          aim_span, " mm"));
@@ -96,13 +106,13 @@ echo(str("  Modo del VL53L1X: ",
                         : d_empty < 3000 ? "MEDIUM" : "LONG"));
 echo(str("=========================================================="));
 
-assert(len(usable_detents) > 0,
-  str("Ningun angulo sirve. O la canasta es demasiado profunda y estrecha ",
-      "para el cono del VL53L1X, o detent_step es demasiado grueso y se ",
-      "salta la ventana valida. Opciones: bajar detent_step, acortar ",
-      "pod_arm, o pasar a un VL53L5CX multizona."));
+assert(len(valid_range) > 0,
+  str("Ningun angulo sirve. La canasta es demasiado profunda y estrecha ",
+      "para el cono del VL53L1X. Opciones: acortar pod_arm o pod_reach, ",
+      "o pasar a un VL53L5CX multizona."));
 
-assert(len(usable_detents) > 1,
-  str("Solo hay una posicion de detente valida (", usable_detents,
-      "), asi que la articulacion regulable no aporta nada. Baja ",
-      "detent_step en params.scad."));
+assert(theta_hi - theta_lo >= 4,
+  str("El rango valido es de solo ", round((theta_hi - theta_lo) * 10) / 10,
+      " grados (", theta_lo, "-", theta_hi, "). Con la bisagra de friccion ",
+      "eso no deja margen real para corregir el apuntado a mano. Acorta ",
+      "pod_arm o pod_reach para ensanchar el rango."));

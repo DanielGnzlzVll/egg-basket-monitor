@@ -49,19 +49,10 @@ nut_h     = 2.8;   // espesor de la tuerca M3
 m2_nut_af = 4.2;   // entrecaras de la tuerca M2 (4.0 nominal + holgura)
 m2_nut_h  = 1.6;   // espesor de la tuerca M2
 
-/* [Placa de bisagra] -----------------------------------------------------
-   Pieza plana que se atornilla a la cara lateral de la mordaza y lleva en su
-   punta la corona Hirth. Existe como pieza aparte por una sola razon: asi la
-   mordaza queda como un prisma puro (se imprime de canto, sin un solo
-   soporte) y la corona se imprime plana con los dientes hacia arriba, que es
-   la unica orientacion en que salen definidos.                             */
+/* [Pivote] -----------------------------------------------------------------
+   pivot_drop: mm del borde de la canasta al eje de la bisagra de friccion.  */
 
-plate_t          = 6.0;   // mm de espesor (>= nut_h + 3, la tuerca se embute
-                          //  por la cara de atras y debe quedar material)
-plate_w          = 18;    // mm de ancho del brazo
-plate_screw_d    = 3.4;   // M3 pasante hacia la mordaza
-plate_screw_sep  = 16;    // mm entre los dos tornillos de sujecion
-pivot_drop       = 28;    // mm del borde de la canasta al eje del pivote
+pivot_drop = 28;
 
 /* [Pomo de apriete] ----------------------------------------------------- */
 
@@ -69,32 +60,19 @@ knob_d     = 24;
 knob_h     = 9;
 knob_lobes = 6;
 
-/* [Articulacion Hirth] ---------------------------------------------------
-   Dos caras dentadas identicas que engranan cada `detent_step` grados.
-   Se aflojan a mano, se gira, se vuelven a apretar.
+/* [Bisagra de friccion] ---------------------------------------------------
+   Reemplaza a la articulacion Hirth: una oreja plana en el mount y otra en
+   el pod, un tornillo M3 pasante con una arandela entre las caras de
+   contacto, apretado a mano con el pomo lobulado. Sin detentes: el angulo
+   se fija por friccion pura. Recalibrar en Grafana tras tocar el pivote.    */
 
-   Quien manda en el TAMANO de la pieza es hirth_r_out, y quien manda en la
-   RESOLUCION es detent_step. No hay que confundirlos: la tentacion es subir
-   los dos radios para que el diente salga ancho, y eso hincha la pieza
-   entera sin necesidad.
-
-   El flanco mide 2*pi*r*(step/2)/360, o sea que se estrecha hacia el centro.
-   Con r_out=17 y step=4 el flanco exterior mide 0.59 mm, comodo para una
-   boquilla de 0.4. En r_in=11 baja a 0.38 mm y los dientes de dentro salen
-   redondeados, y no pasa nada por dos razones: el par crece con el radio,
-   asi que esos dientes apenas trabajan, y como las dos caras se imprimen
-   con el mismo perfil se redondean igual y siguen encajando.
-
-   Regla practica: dimensiona hirth_r_out para que el flanco exterior pase
-   de 0.5 mm, y deja hirth_r_in en lo que haga falta para que quepa la
-   cabeza del tornillo del pivote.                                          */
-
-detent_step   = 4;     // grados por posicion (90 posiciones en 360)
-hirth_r_in    = 11;    // mm, radio interior de la corona dentada
-hirth_r_out   = 17;    // mm, radio exterior
-hirth_h       = 1.4;   // mm, altura del diente
-hirth_backing = 3.2;   // mm, espesor del disco detras de los dientes
-pivot_screw_d = 3.4;   // M3 pasante del eje
+hinge_screw_d  = 3.4;   // mm, M3 pasante del pivote
+hinge_ear_w    = 22;    // mm, ancho x alto de cada oreja (mount y pod)
+hinge_ear_t    = 5;     // mm, espesor de cada oreja
+hinge_arm_t    = 5;     // mm, espesor del brazo que conecta la pata del
+                        // mount con la oreja (mismo grosor que la oreja)
+hinge_washer_d = 7;     // mm, diametro de apoyo de la arandela M3 entre
+                        // las dos orejas
 
 /* [Angulo de apuntado] ---------------------------------------------------
    0 grados = mirando recto hacia abajo, pegado a la pared.
@@ -109,11 +87,11 @@ angle_preview = 16;    // solo para la vista de ensamblaje (debe ser un detente 
    MEDIR EL MODULO REAL CUANDO LLEGUE. Los breakout de AliExpress varian
    entre 20x11 y 25x13 mm y la separacion de agujeros cambia con cada lote. */
 
-pcb_l            = 25.0;  // mm, largo del PCB
-pcb_w            = 11.0;  // mm, ancho del PCB
-pcb_t            = 1.6;   // mm, espesor del PCB
-pcb_hole_spacing = 20.0;  // mm entre centros de los agujeros de montaje
-pcb_hole_d       = 2.3;   // mm, M2 PASANTE (no piloto: no se usan autorroscantes)
+pcb_l            = 20.0;  // mm, ancho real del TOF200C
+pcb_w            = 11.0;  // mm, alto del PCB
+pcb_t            = 1.6;   // mm, espesor del PCB (sin medir, se mantiene)
+pcb_hole_spacing = 14.4;  // mm entre centros de agujero, ficha del TOF200C
+pcb_hole_d       = 2.3;   // mm, M2 PASANTE (agujero real Ø2, esto da holgura)
 pcb_pocket_clear = 0.4;   // holgura del bolsillo
 // Ventana optica. Tiene que dejar pasar el cono de 27 grados desde la
 // apertura del sensor a traves del material que queda por delante del PCB
@@ -136,9 +114,10 @@ wire_channel_d   = 6.0;   // mm, canal para los 5 Dupont
 pod_reach = 16;   // mm, de la cara interna de la pared al eje del pivote
 
 // Del eje del pivote al centro del sensor: lo justo para que la pared del
-// PCB libre el disco dentado. Vive aqui, y no dentro de sensor_head.scad,
-// porque geometry.scad lo necesita para saber donde acaba mirando el sensor.
-pod_arm = hirth_r_out + pcb_w / 2 + 6;   // mm
+// PCB libre la oreja de la bisagra de friccion. Vive aqui, y no dentro de
+// sensor_head.scad, porque geometry.scad lo necesita para saber donde acaba
+// mirando el sensor.
+pod_arm = hinge_ear_w / 2 + pcb_w / 2 + 6;   // mm
 
 /* [Caja de electronica] --------------------------------------------------
    Cuelga POR FUERA de la canasta, con su propio gancho al borde. Va fuera y
@@ -170,11 +149,21 @@ box_wall    = 2.4;
 box_lid_t   = 2.4;
 box_screw_d = 3.4;   // M3 de la tapa
 
-// Gancho de la caja: pata exterior larga (es donde se atornilla la caja) y
-// pata interior corta (solo tiene que enganchar).
-box_hook_w   = 26;
-box_hook_out = 40;
-box_hook_in  = 18;
+/* [Interfaz congelada con la caja de electronica] -------------------------
+   La caja (electronics_box.scad: box/lid) YA ESTA IMPRESA. Estos numeros son
+   la interfaz de montaje con la que se taladro esa pieza fisica; los usa
+   rim_mount.scad para que el brazo exterior del mount reproduzca el mismo
+   gancho que antes generaba electronics_box.scad::hook(). NO se recalculan
+   a partir de otras cotas de la caja (in_h, out_h, etc.): son una foto fija
+   del objeto real. Si algun dia se reimprime la caja con otras cotas, hay
+   que actualizar este bloque a mano.                                       */
+box_hook_w        = 26;    // pata exterior larga (donde se atornilla la caja)
+box_hook_out      = 40;    // y pata interior corta (solo tiene que enganchar)
+box_hook_in       = 18;
+box_hook_pad      = 3.2;
+box_hook_screw_z  = -7;    // arriba del todo, para no chocar con la caja colgada
+box_iface_hole_z  = [-26, -34]; // = -(box_hang_drop + out_h - y), y en [71, 63]
+                                // con box_hang_drop=16 y out_h=81 (cell_l=68)
 
 /* [Impresion] ----------------------------------------------------------- */
 
