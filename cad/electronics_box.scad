@@ -87,20 +87,15 @@ board_sep = 2;            // entre modulos, y del modulo a lo que tenga encima
 tp_y  = y0 + 6;
 mcu_y = tp_y + tp_w + board_sep;
 
-// Espina para colgar del gancho: engorda la zona alta del tabique para poder
-// embutir ahi dos tuercas M3.
+// Espina para colgar del mount: engorda la zona alta del tabique para poder
+// embutir ahi dos tuercas M3. El mount unificado (rim_mount.scad) reproduce
+// estos mismos agujeros desde su lado usando el bloque "Interfaz congelada"
+// de params.scad (box_hook_*), asi que estos numeros de aqui NO se tocan.
 hook_cx  = 30;
 spine_y0 = y0 + in_h - 18;
 spine_y1 = y0 + in_h;
 spine_z  = 8;
 hook_hole_y = [out_h - 10, out_h - 18];
-
-// El tornillo de apriete del gancho va ARRIBA del todo y la caja cuelga por
-// debajo de el. Si se solaparan, el saliente de 6 mm del tornillo chocaria
-// contra el fondo de la caja y esta no apoyaria plana contra la pata.
-box_hook_screw_z = -7;
-box_hang_drop    = 16;   // cuanto baja el techo de la caja bajo el borde
-box_hook_pad     = 3.2;
 
 be = 0.01;
 
@@ -205,23 +200,6 @@ module lid() {
 }
 
 // ===========================================================================
-//  GANCHO
-// ===========================================================================
-
-module hook() {
-    difference() {
-        rim_hook(box_hook_w, box_hook_out, box_hook_in, box_hook_pad,
-                 box_hook_screw_z);
-        // Pasantes hacia la espina de la caja. La cabeza apoya en la cara
-        // exterior, que queda accesible con la caja ya colgada.
-        for (y = hook_hole_y)
-            translate([-clamp_wall - 1, 0, -(box_hang_drop + out_h - y)])
-                rotate([0, 90, 0])
-                    cylinder(d = box_screw_d, h = clamp_wall + 2);
-    }
-}
-
-// ===========================================================================
 //  ENSAMBLAJE  (solo para mirar)
 // ===========================================================================
 
@@ -237,18 +215,6 @@ module assembly_raw() {
     color("DimGray", 0.6)
         translate([cx, y0 + 1, cz]) rotate([-90, 0, 0])
             cylinder(d = cell_d, h = in_h - 3);
-
-    // El gancho vive en otro marco (x hacia dentro de la canasta, z hacia
-    // abajo). Esta matriz lo trae al marco de la caja: gancho +x -> caja -z,
-    // gancho +y -> caja -x, gancho +z -> caja +y.
-    multmatrix([[ 0, -1, 0, hook_cx],
-                [ 0,  0, 1, out_h + box_hang_drop],
-                [-1,  0, 0, -clamp_wall],
-                [ 0,  0, 0, 1]]) {
-        color("Goldenrod") hook();
-        color("Tan", 0.25) translate([0, -70, -160])
-            cube([rim_thickness, 140, 160]);   // trozo de pared, solo contexto
-    }
 }
 
 // --- Seleccion de pieza ----------------------------------------------------
@@ -263,9 +229,8 @@ echo(str("  Hueco de ", in_h, " mm: acepta celdas de ",
 // nada al otro lado que haga de tuerca, la tuerca va embutida en la pieza.
 echo(str("  Tornilleria: ",
          "4x M3x", ceil(box_lid_t + nut_h + 2.3), " + 4 tuercas (tapa), ",
-         "2x M3x", ceil(clamp_wall + z0 + spine_z), " + 2 tuercas (gancho), ",
-         "1x M3x16 + 1 tuerca (apriete, minimo ",
-         ceil(rim_hook_screw_len()), ")"));
+         "2x M3x", ceil(clamp_wall + z0 + spine_z), " + 2 tuercas (mount, ",
+         "interfaz heredada del gancho original)"));
 echo(str("=========================================================="));
 
 assert(spring_h < box_floor - 1.5, "El nicho del muelle atraviesa el suelo.");
@@ -293,18 +258,15 @@ for (b = [[tp_y, tp_w], [mcu_y, mcu_w]])
 
 assert(tp_y - 1.5 > y0, "El marco del TP4056 se sale por debajo del suelo.");
 assert(hook_cx - 7 > x0 + cell_bay_w - 1,
-       "La espina del gancho invade el hueco de la celda. Sube hook_cx.");
-for (y = hook_hole_y) {
+       "La espina invade el hueco de la celda. Sube hook_cx.");
+for (y = hook_hole_y)
     assert(y > spine_y0 + 4 && y < spine_y1 - 4,
-           "Un tornillo del gancho cae fuera de la espina.");
-    assert(box_hang_drop + out_h - y < box_hook_out - 4,
-           "Un tornillo del gancho cae por debajo de la pata exterior.");
-    assert(box_hang_drop + out_h - y > -box_hook_screw_z + 7,
-           "Un tornillo del gancho pisa el saliente del de apriete.");
-}
+           "Un tornillo de la espina cae fuera de ella.");
+// La validacion de que estos agujeros caigan dentro de la pata exterior del
+// mount (y no pisen su tornillo de apriete) vive en rim_mount.scad, porque
+// depende de box_hook_out/box_hook_screw_z, que ya no son cosa de esta pieza.
 
 if      (part == "box")      box();
 else if (part == "lid")      lid();
-else if (part == "hook")     hook();
 else if (part == "assembly") assembly();
 else assert(false, str("part desconocida: ", part));
