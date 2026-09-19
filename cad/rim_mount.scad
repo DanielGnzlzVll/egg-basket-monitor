@@ -36,13 +36,18 @@ pz = -pivot_drop;
 y_ear0 = clamp_width / 2;
 
 tight_len = rim_hook_screw_len();
-hinge_len = 2 * hinge_ear_t + 3 + nut_h;   // dos orejas + arandela + tuerca
+// Tornillo pasante de rosca completa: rosca en la tuerca cautiva del mount
+// en un extremo, atraviesa la oreja del pod y la arandela, y rosca tambien
+// en la tuerca del pomo en el otro extremo. Se tensa girando el pomo; la
+// tuerca del mount no gira porque esta embutida en su alojamiento hexagonal.
+hinge_len = 2 * hinge_ear_t + 1 + knob_h;
 
 echo(str("--- Tornilleria mount --------------------------------------"));
 echo(str("  Apriete al borde  M3 x ", round(tight_len * 10) / 10,
          " mm + 1 tuerca (cautiva en el saliente)"));
 echo(str("  Pivote (bisagra)  M3 x ", round(hinge_len * 10) / 10,
-         " mm + 1 tuerca (pomo) + 1 arandela suelta"));
+         " mm, rosca completa + 1 tuerca (cautiva en el mount) + ",
+         "1 tuerca (en el pomo) + 1 arandela suelta"));
 echo(str("=========================================================="));
 
 // Los dos agujeros hacia la espina de la caja (interfaz congelada) tienen
@@ -83,15 +88,28 @@ module mount() {
                          center = true);
             }
 
-        // Oreja de la bisagra, con el agujero del pivote. Ocupa Y de
-        // [y_ear0, y_ear0 + hinge_ear_t]: la del pod arranca justo despues.
+        // Oreja de la bisagra, con el agujero del pivote y su tuerca
+        // cautiva. Ocupa Y de [y_ear0, y_ear0 + hinge_ear_t]: la del pod
+        // arranca justo despues.
+        //
+        // La tuerca va abierta hacia el pod (+Y): se mete a presion antes
+        // de acoplar el pod, y la propia oreja del pod la deja atrapada sin
+        // que pueda girar ni caerse. El tornillo entra por el otro extremo
+        // (pomo), atraviesa el pod, y rosca aqui.
         difference() {
             translate([px, y_ear0, pz])
                 rotate([-90, 0, 0])
                     cylinder(d = hinge_ear_w, h = hinge_ear_t);
+
+            // Agujero pasante del tornillo, hasta donde arranca la tuerca.
             translate([px, y_ear0 - eps, pz])
                 rotate([-90, 0, 0])
-                    cylinder(d = hinge_screw_d, h = hinge_ear_t + 2 * eps);
+                    cylinder(d = hinge_screw_d, h = hinge_ear_t - nut_h + eps);
+
+            // Tuerca cautiva M3.
+            translate([px, y_ear0 + hinge_ear_t - nut_h, pz])
+                rotate([-90, 0, 0])
+                    cylinder(d = nut_af / cos(30), h = nut_h + eps, $fn = 6);
         }
     }
 }

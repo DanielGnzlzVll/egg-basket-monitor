@@ -60,15 +60,22 @@ knob_h     = 9;
 knob_lobes = 6;
 
 /* [Bisagra de friccion] ---------------------------------------------------
-   Reemplaza a la articulacion Hirth: una oreja plana en el mount y otra en
-   el pod, un tornillo M3 pasante con una arandela entre las caras de
-   contacto, apretado a mano con el pomo lobulado. Sin detentes: el angulo
-   se fija por friccion pura. Recalibrar en Grafana tras tocar el pivote.    */
+   Reemplaza a la articulacion Hirth: una oreja plana en el mount con una
+   tuerca M3 cautiva, y otra oreja lisa en el pod, con una arandela entre
+   las dos caras de contacto. El tornillo entra por el pomo, atraviesa el
+   pod y rosca en la tuerca del mount. Sin detentes: el angulo se fija por
+   friccion pura. Recalibrar en Grafana tras tocar el pivote.
+
+   La tuerca se mete en el mount ANTES de acoplar el pod: una vez montado,
+   el pod tapa el hueco y la tuerca queda cautiva sin poder girar ni
+   caerse, igual que pasaba con las tuercas de la vieja placa Hirth.        */
 
 hinge_screw_d  = 3.4;   // mm, M3 pasante del pivote
 hinge_ear_w    = 22;    // mm, ancho x alto de cada oreja (mount y pod)
-hinge_ear_t    = 5;     // mm, espesor de cada oreja
-hinge_arm_t    = 5;     // mm, espesor del brazo que conecta la pata del
+hinge_ear_t    = 6.0;   // mm, espesor de cada oreja (>= nut_h + 3, la tuerca
+                        // del mount se embute por la cara del pod y debe
+                        // quedar material detras)
+hinge_arm_t    = 6.0;   // mm, espesor del brazo que conecta la pata del
                         // mount con la oreja (mismo grosor que la oreja)
                         // Entre las dos orejas va una arandela M3 suelta,
                         // sin modelar: es hardware de compra, no impreso.
