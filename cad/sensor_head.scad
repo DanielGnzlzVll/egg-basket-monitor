@@ -15,13 +15,15 @@
 //  TORNILLERIA: las longitudes las calcula y las imprime el propio modelo al
 //  compilar. Ver el bloque ECHO.
 //
-//  ORDEN DE MONTAJE (importa: la tuerca del mount queda cautiva):
-//    1. Tuerca M3 a presion en la oreja del mount (rim_mount.scad).
+//  ORDEN DE MONTAJE:
+//    1. Tuerca M3 a presion en la oreja del mount (rim_mount.scad), del
+//       lado de la mordaza/borde (queda abierta a esa cara, no cautiva por
+//       otra pieza: la sujeta el hexagono y despues el propio tornillo).
 //    2. Tuerca M3 a presion en el pomo.
-//    3. Pod contra la oreja del mount (la tapa y atrapa su tuerca), con la
-//       arandela entre las dos caras. Tornillo de rosca completa desde el
-//       pomo, atraviesa el pod, rosca en la tuerca del mount. Apretar el
-//       pomo a mano hasta que la friccion sujete el angulo.
+//    3. Pod contra la oreja del mount, con la arandela entre las dos
+//       caras. Tornillo de rosca completa desde el pomo, atraviesa el pod,
+//       rosca en la tuerca del mount. Apretar el pomo a mano hasta que la
+//       friccion sujete el angulo.
 //
 //  Uso:  openscad -D 'part="pod"' -o pod.stl sensor_head.scad
 //        part = "pod" | "knob" | "assembly"

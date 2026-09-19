@@ -109,18 +109,18 @@ module mount() {
                     cylinder(d = hinge_ear_w, h = hinge_ear_t);
         }
 
-        // Agujero pasante del tornillo, hasta donde arranca la tuerca.
+        // Tuerca cautiva M3, abierta hacia la mordaza/borde (-Y, la cara
+        // opuesta al pod): se mete a presion desde ese lado antes de armar.
         translate([px, y_ear0 - eps, pz])
             rotate([-90, 0, 0])
-                cylinder(d = hinge_screw_d, h = hinge_ear_t - nut_h + eps);
-
-        // Tuerca cautiva M3, abierta hacia el pod (+Y): se mete a presion
-        // antes de acoplar el pod, y la propia oreja del pod la deja
-        // atrapada sin que pueda girar ni caerse. El tornillo entra por el
-        // otro extremo (pomo), atraviesa el pod, y rosca aqui.
-        translate([px, y_ear0 + hinge_ear_t - nut_h, pz])
-            rotate([-90, 0, 0])
                 cylinder(d = nut_af / cos(30), h = nut_h + eps, $fn = 6);
+
+        // Agujero pasante del tornillo, desde donde termina la tuerca hasta
+        // la cara que mira al pod. El tornillo entra por el pomo, atraviesa
+        // el pod, y rosca en la tuerca de aca.
+        translate([px, y_ear0 + nut_h - eps, pz])
+            rotate([-90, 0, 0])
+                cylinder(d = hinge_screw_d, h = hinge_ear_t - nut_h + eps);
     }
 }
 

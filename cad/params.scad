@@ -66,15 +66,16 @@ knob_lobes = 6;
    pod y rosca en la tuerca del mount. Sin detentes: el angulo se fija por
    friccion pura. Recalibrar en Grafana tras tocar el pivote.
 
-   La tuerca se mete en el mount ANTES de acoplar el pod: una vez montado,
-   el pod tapa el hueco y la tuerca queda cautiva sin poder girar ni
-   caerse, igual que pasaba con las tuercas de la vieja placa Hirth.        */
+   La tuerca va del lado de la mordaza/borde (-Y), en un alojamiento
+   hexagonal abierto a esa cara: no queda tapada por ninguna otra pieza, la
+   sujeta solo el hexagono (no puede girar) y la presion del tornillo una
+   vez apretado.                                                            */
 
 hinge_screw_d  = 3.4;   // mm, M3 pasante del pivote
 hinge_ear_w    = 22;    // mm, ancho x alto de cada oreja (mount y pod)
 hinge_ear_t    = 6.0;   // mm, espesor de cada oreja (>= nut_h + 3, la tuerca
-                        // del mount se embute por la cara del pod y debe
-                        // quedar material detras)
+                        // del mount se embute por su cara y debe quedar
+                        // material detras, hacia el lado del pod)
 hinge_arm_t    = 6.0;   // mm, espesor del brazo que conecta la pata del
                         // mount con la oreja (mismo grosor que la oreja)
                         // Entre las dos orejas va una arandela M3 suelta,
