@@ -52,13 +52,17 @@ así que si tocas una cota del CAD, vuelve a mirar aquí. Con las cotas actuales
 
 | Dónde | Tornillo | Tuerca | Cant. |
 |---|---|---|---|
-| Pivote de la bisagra de fricción | M3×16 (mínimo 15.8) | 1, en el pomo | 1 + 1 arandela suelta |
+| Pivote de la bisagra de fricción | M3×22, rosca completa (mínimo 22) | 1 cautiva en el mount + 1 en el pomo | 2 + 1 arandela suelta |
 | Apriete del mount al borde | M3×16 (mínimo 12.2) | 1, cautiva en el saliente | 1 |
 | Mount → caja (interfaz heredada del gancho original) | M3×14 | 2, embutidas en la espina de la caja | 2 |
 | Tapa de la caja | M3×8 | 4, cautivas bajo la tapa | 4 |
 | Módulo VL53L1X al pod | M2×8 (mínimo 7.7) | 2, sueltas por detrás del PCB | 2 |
 
-**Total: 8 tornillos M3, 2 tornillos M2, 8 tuercas M3, 2 tuercas M2, 1 arandela M3.**
+**Total: 9 tornillos M3, 2 tornillos M2, 9 tuercas M3, 2 tuercas M2, 1 arandela M3.**
+
+El tornillo del pivote necesita ser de **rosca completa** (no parcial): rosca
+tanto en la tuerca cautiva del mount como en la del pomo, en los dos extremos.
+La mayoría de los M3 cortos de un kit de tornillería ya vienen así.
 
 `clamp`, `plate` y `hook` desaparecieron en el rediseño de 2026-09-18: se
 fusionaron en una sola pieza (`mount`) con un solo punto de apriete, y la
