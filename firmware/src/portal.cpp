@@ -30,8 +30,8 @@ bool runConfigPortal() {
     wm.setSaveParamsCallback(onSaveConfig);
 
     WiFiManagerParameter influxUrl(
-        "influx_url", "Influx write URL (Grafana Cloud)", existing.influxUrl.c_str(), 200,
-        "required placeholder='https://influx-prod-XX.grafana.net/api/v1/push/influx/write'");
+        "influx_url", "Host de Grafana Cloud (sin path, ej: prometheus-us-central1.grafana.net)",
+        existing.influxUrl.c_str(), 200, "required placeholder='prometheus-us-central1.grafana.net'");
     WiFiManagerParameter influxUser("influx_user", "Instance ID", existing.influxUser.c_str(),
                                      64, "required");
     WiFiManagerParameter influxToken(

@@ -53,7 +53,7 @@ constexpr uint32_t PORTAL_TIMEOUT_S = 5 * 60;        // 5 minutos sin actividad
 // ---------------------------------------------------------------------------
 // Medición
 // ---------------------------------------------------------------------------
-constexpr int SENSOR_SAMPLE_COUNT = 20;
+constexpr int SENSOR_SAMPLE_COUNT = 20; 
 constexpr uint16_t SENSOR_ROI_WIDTH = 4;   // SPADs, ROI mínimo del VL53L1X
 constexpr uint16_t SENSOR_ROI_HEIGHT = 4;
 
@@ -76,5 +76,13 @@ constexpr uint32_t MAX_SLEEP_MINUTES = 1440;
 
 constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 15000;
 constexpr uint32_t HTTP_TIMEOUT_MS = 10000;
+
+// Ruta fija del endpoint de compatibilidad Influx de Grafana Cloud. Es igual
+// para cualquier cuenta/region: lo unico que cambia entre usuarios es el
+// host. telemetry.cpp la agrega automaticamente a lo que se haya guardado en
+// el portal, aunque el usuario haya pegado solo el host (con o sin path,
+// con o sin "https://") — asi un error de tipeo como pegar la URL de
+// Prometheus sin esta ruta ya no rompe el envio.
+constexpr const char *INFLUX_WRITE_PATH = "/api/v1/push/influx/write";
 
 constexpr int RETRY_BUFFER_SLOTS = 3;

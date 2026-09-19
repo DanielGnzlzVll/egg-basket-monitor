@@ -61,6 +61,29 @@ void appendLine(String &body, const DeviceSettings &settings, uint16_t distanceM
     body += line;
 }
 
+// Acepta lo que el usuario haya pegado en el portal (host solo, host con
+// "https://", con barra final, o incluso una URL con el path equivocado o
+// faltante como "https://prometheus-us-central1.grafana.net" a secas) y
+// siempre arma la URL final correcta: esquema + host + INFLUX_WRITE_PATH.
+// Cualquier path/query que el usuario haya incluido se descarta, porque el
+// path de escritura Influx es el mismo para todas las cuentas.
+String normalizeInfluxWriteUrl(const String &raw) {
+    String s = raw;
+    s.trim();
+    if (s.length() == 0) return s;
+
+    if (!s.startsWith("http://") && !s.startsWith("https://")) {
+        s = "https://" + s;
+    }
+
+    int schemeEnd = s.indexOf("://") + 3;
+    int pathStart = s.indexOf('/', schemeEnd);
+    String hostPart = (pathStart == -1) ? s : s.substring(0, pathStart);
+    while (hostPart.endsWith("/")) hostPart.remove(hostPart.length() - 1);
+
+    return hostPart + INFLUX_WRITE_PATH;
+}
+
 int findSlotForNewEntry() {
     for (int i = 0; i < RETRY_BUFFER_SLOTS; i++) {
         if (!retryBuffer[i].occupied) return i;
@@ -101,13 +124,16 @@ bool sendReading(const DeviceSettings &settings, const SensorReading &reading,
                /*status=*/reading.sensorOk ? 0 : 2, batteryMv, rssi,
                haveTime ? nowEpoch : 0);
 
+    String url = normalizeInfluxWriteUrl(settings.influxUrl);
+    Serial.printf("Influx POST -> %s\n", url.c_str());
+
     WiFiClientSecure client;
     client.setInsecure();  // sin pinning de certificado; ver docs/wiring.md para el trade-off
 
     HTTPClient http;
     http.setTimeout(HTTP_TIMEOUT_MS);
     bool ok = false;
-    if (http.begin(client, settings.influxUrl)) {
+    if (http.begin(client, url)) {
         http.addHeader("Content-Type", "text/plain");
         http.setAuthorization(settings.influxUser.c_str(), settings.influxToken.c_str());
         int code = http.POST(body);
