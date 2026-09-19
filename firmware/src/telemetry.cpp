@@ -112,7 +112,15 @@ bool sendReading(const DeviceSettings &settings, const SensorReading &reading,
         http.setAuthorization(settings.influxUser.c_str(), settings.influxToken.c_str());
         int code = http.POST(body);
         ok = (code >= 200 && code < 300);
+        if (code > 0) {
+            Serial.printf("Influx POST -> HTTP %d\n", code);
+            if (!ok) Serial.println(http.getString());  // Grafana Cloud manda el motivo del rechazo en el body
+        } else {
+            Serial.printf("Influx POST -> error de conexion (%s)\n", http.errorToString(code).c_str());
+        }
         http.end();
+    } else {
+        Serial.println("Influx POST -> http.begin() fallo, revisar influx_url guardada en el portal");
     }
 
     if (ok) {

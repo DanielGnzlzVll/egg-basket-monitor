@@ -122,6 +122,8 @@ uint32_t readBatteryMillivolts() {
 
 void deepSleepIndefinitely() {
     ledOff();
+    Serial.flush();
+    delay(50);  // deja que el USB-CDC termine de transmitir antes de cortar la energia
     esp_deep_sleep_start();
     while (true) {
         // No debería llegar aquí; esp_deep_sleep_start no retorna.
@@ -130,6 +132,8 @@ void deepSleepIndefinitely() {
 
 void deepSleepFor(uint32_t minutes) {
     ledOff();
+    Serial.flush();
+    delay(50);  // deja que el USB-CDC termine de transmitir antes de cortar la energia
     uint64_t microseconds = static_cast<uint64_t>(minutes) * 60ULL * 1000000ULL;
     esp_sleep_enable_timer_wakeup(microseconds);
     esp_deep_sleep_start();

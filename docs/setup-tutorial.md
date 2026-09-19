@@ -60,9 +60,35 @@ ningún botón.
 Si no completás el formulario en 5 minutos, el dispositivo reinicia y vuelve
 a intentar (si no hay config guardada, vuelve a levantar el portal).
 
-## 4. Verificar que llegan datos
+## 4. Verificar que está funcionando
 
-En Grafana Cloud, Explore, elegí el datasource Prometheus de tu stack y
+**Por serial (lo más rápido para probar).** Con el cable USB puesto, abrí el
+monitor:
+
+```bash
+cd firmware
+pio device monitor
+```
+
+Cada ciclo normal imprime algo así:
+
+```
+=== Ciclo normal ===
+Sensor: distancia=412 mm  stddev=1.8  validas=19/20
+Bateria: 4.05 V
+Conectando a WiFi 'MiCasa'...
+WiFi conectado: IP=192.168.1.47  RSSI=-52dBm
+Influx POST -> HTTP 204
+POST a Grafana Cloud: OK
+Durmiendo 60 minutos...
+```
+
+Un `HTTP 204` (o cualquier 2xx) confirma que Grafana Cloud aceptó el dato. Si
+falla, imprime el código HTTP y el cuerpo de la respuesta con el motivo (por
+ejemplo `401` = token o Instance ID mal cargados en el portal, `404` = URL de
+push incorrecta).
+
+**En Grafana Cloud.** Explore, elegí el datasource Prometheus de tu stack y
 corré:
 
 ```
@@ -72,7 +98,18 @@ eggbasket_distance_mm
 Debería aparecer una serie con el label `device="cocina"` (o el nombre que
 hayas puesto) actualizándose cada vez que pasa el intervalo configurado.
 
-## 5. Volver a entrar a un modo especial más adelante
+## 5. Forzar un envío sin esperar el intervalo
+
+No hace falta ningún botón especial: **un RESET simple** (o desconectar y
+reconectar la alimentación) alcanza, siempre que no mantengas BOOT
+presionado al mismo tiempo. El ciclo normal se dispara en cada arranque, sea
+por el temporizador de deep sleep o por un reset manual.
+
+Para iterar más rápido mientras probás, también podés bajar el **intervalo
+de sueño** a 5 minutos (el mínimo) desde el portal de configuración (sección
+3, paso 4) en vez de resetear a mano cada vez.
+
+## 6. Volver a entrar a un modo especial más adelante
 
 Con la placa ya configurada, para forzar un modo especial hay que sostener
 el botón **BOOT** justo cuando el dispositivo arranca (ver
@@ -88,7 +125,7 @@ el botón **BOOT** justo cuando el dispositivo arranca (ver
      parpadeos azules, vuelve a levantar `EggBasket-Setup`; tus credenciales
      WiFi anteriores no se borran hasta que guardes un formulario nuevo).
 
-## 6. Tabla de patrones de LED
+## 7. Tabla de patrones de LED
 
 | Patrón | Significado |
 |---|---|
@@ -103,16 +140,18 @@ Si tu placa "C3 SuperMini" trae un LED simple de un solo color en vez de un
 RGB direccionable, los mismos eventos se traducen a parpadeos simples (ver
 `firmware/include/config.h`, `STATUS_LED_IS_NEOPIXEL`).
 
-## 7. Qué hacer si algo no anda
+## 8. Qué hacer si algo no anda
 
 - **El portal no abre / no aparece la red `EggBasket-Setup`.** Revisá el
   monitor serial (`pio device monitor`) para ver si el arranque detectó el
   modo correcto. Confirmá el cableado del botón BOOT (es el que ya trae la
   placa; no hay que cablear nada extra).
 - **Conecta a WiFi pero nunca llegan datos a Grafana.** Con el monitor serial
-  abierto, forzá un reset: el firmware no imprime logs verbosos por defecto
-  para ahorrar batería, así que para depurar a fondo agregá temporalmente
-  `Serial.println` en `telemetry.cpp` alrededor del `http.POST`.
-- **El sensor no inicializa** (mensaje de error en modo calibración): revisar
+  abierto, forzá un reset y mirá el log del ciclo normal (sección 4): el
+  código HTTP que imprime `Influx POST -> HTTP ...` dice exactamente qué
+  rechazó Grafana Cloud (401/403 = credenciales, 404 = URL, timeout = sin
+  internet real aunque el WiFi haya conectado).
+- **El sensor no inicializa** (mensaje de error en modo calibración, o
+  "Sensor: fallo de lectura" en el log del ciclo normal): revisar
   `docs/wiring.md`, sección VL53L1X, y confirmar que el módulo es la versión
   de 3.3 V.
