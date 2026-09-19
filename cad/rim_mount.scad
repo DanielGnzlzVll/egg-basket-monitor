@@ -61,56 +61,66 @@ for (z = box_iface_hole_z) {
 }
 
 module mount() {
-    union() {
-        difference() {
-            // Cuerpo base: pata interior larga (clamp_grip_in, aloja el
-            // brazo hacia la bisagra) + pata exterior larga (box_hook_out,
-            // aloja la caja), ambas en el MISMO punto de apriete.
-            rim_hook(clamp_width, box_hook_out, clamp_grip_in, pad, tight_gz,
-                     ribs = grip_ribs);
+    // El agujero del pivote y su tuerca se cortan DESPUES de unir el brazo
+    // con la oreja, no antes: el brazo llega solido hasta el mismo punto
+    // (px, pz) para poder pegarse a la oreja, asi que si el agujero se corta
+    // solo en la oreja (por separado, dentro del union() de mas abajo), el
+    // brazo solido lo vuelve a tapar al unirse. Cortando sobre el conjunto
+    // ya unido, el agujero atraviesa las dos cosas de una vez.
+    difference() {
+        union() {
+            difference() {
+                // Cuerpo base: pata interior larga (clamp_grip_in, aloja el
+                // brazo hacia la bisagra) + pata exterior larga
+                // (box_hook_out, aloja la caja), ambas en el MISMO punto de
+                // apriete.
+                rim_hook(clamp_width, box_hook_out, clamp_grip_in, pad, tight_gz,
+                         ribs = grip_ribs);
 
-            // Pasantes hacia la espina de la caja (interfaz congelada).
-            for (z = box_iface_hole_z)
-                translate([-clamp_wall - 1, 0, z])
-                    rotate([0, 90, 0])
-                        cylinder(d = box_screw_d, h = clamp_wall + 2);
-        }
-
-        // Brazo hacia la oreja de la bisagra: de la pata interior hasta el
-        // eje del pivote, del mismo espesor que la oreja (hinge_arm_t) y
-        // centrado en Y sobre y_ear0 + hinge_ear_t/2.
-        translate([0, y_ear0 + hinge_ear_t / 2 - hinge_arm_t / 2, 0])
-            hull() {
-                translate([hook_slot + pad / 2, 0, -clamp_grip_in + 6])
-                    cube([pad, hinge_arm_t, 12], center = true);
-                translate([px, 0, pz])
-                    cube([hinge_ear_w * 0.6, hinge_arm_t, hinge_ear_w * 0.6],
-                         center = true);
+                // Pasantes hacia la espina de la caja (interfaz congelada).
+                for (z = box_iface_hole_z)
+                    translate([-clamp_wall - 1, 0, z])
+                        rotate([0, 90, 0])
+                            cylinder(d = box_screw_d, h = clamp_wall + 2);
             }
 
-        // Oreja de la bisagra, con el agujero del pivote y su tuerca
-        // cautiva. Ocupa Y de [y_ear0, y_ear0 + hinge_ear_t]: la del pod
-        // arranca justo despues.
-        //
-        // La tuerca va abierta hacia el pod (+Y): se mete a presion antes
-        // de acoplar el pod, y la propia oreja del pod la deja atrapada sin
-        // que pueda girar ni caerse. El tornillo entra por el otro extremo
-        // (pomo), atraviesa el pod, y rosca aqui.
-        difference() {
+            // Brazo hacia la oreja de la bisagra: de la pata interior hasta
+            // el eje del pivote, del mismo espesor que la oreja
+            // (hinge_arm_t) y centrado en Y sobre y_ear0 + hinge_ear_t/2 (los
+            // cubos de abajo ya estan centrados con center=true, asi que el
+            // offset es directamente el centro deseado, sin restar
+            // hinge_arm_t/2 de nuevo -- restarlo aca desplazaba el brazo
+            // hinge_arm_t/2 hacia la mordaza y lo metia encima del agujero
+            // del pivote en vez de coincidir con la oreja).
+            translate([0, y_ear0 + hinge_ear_t / 2, 0])
+                hull() {
+                    translate([hook_slot + pad / 2, 0, -clamp_grip_in + 6])
+                        cube([pad, hinge_arm_t, 12], center = true);
+                    translate([px, 0, pz])
+                        cube([hinge_ear_w * 0.6, hinge_arm_t, hinge_ear_w * 0.6],
+                             center = true);
+                }
+
+            // Oreja de la bisagra, solida por ahora (el agujero se corta
+            // abajo). Ocupa Y de [y_ear0, y_ear0 + hinge_ear_t]: la oreja
+            // del pod arranca justo despues.
             translate([px, y_ear0, pz])
                 rotate([-90, 0, 0])
                     cylinder(d = hinge_ear_w, h = hinge_ear_t);
-
-            // Agujero pasante del tornillo, hasta donde arranca la tuerca.
-            translate([px, y_ear0 - eps, pz])
-                rotate([-90, 0, 0])
-                    cylinder(d = hinge_screw_d, h = hinge_ear_t - nut_h + eps);
-
-            // Tuerca cautiva M3.
-            translate([px, y_ear0 + hinge_ear_t - nut_h, pz])
-                rotate([-90, 0, 0])
-                    cylinder(d = nut_af / cos(30), h = nut_h + eps, $fn = 6);
         }
+
+        // Agujero pasante del tornillo, hasta donde arranca la tuerca.
+        translate([px, y_ear0 - eps, pz])
+            rotate([-90, 0, 0])
+                cylinder(d = hinge_screw_d, h = hinge_ear_t - nut_h + eps);
+
+        // Tuerca cautiva M3, abierta hacia el pod (+Y): se mete a presion
+        // antes de acoplar el pod, y la propia oreja del pod la deja
+        // atrapada sin que pueda girar ni caerse. El tornillo entra por el
+        // otro extremo (pomo), atraviesa el pod, y rosca aqui.
+        translate([px, y_ear0 + hinge_ear_t - nut_h, pz])
+            rotate([-90, 0, 0])
+                cylinder(d = nut_af / cos(30), h = nut_h + eps, $fn = 6);
     }
 }
 
