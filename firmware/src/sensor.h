@@ -11,14 +11,14 @@ struct SensorReading {
 
 namespace sensor {
 
-// Enciende el VL53L1X (XSHUT alto), lo inicializa con el ROI reducido y modo
-// short, toma SENSOR_SAMPLE_COUNT lecturas y devuelve mediana + desviación
-// estándar. Vuelve a apagar el sensor (XSHUT bajo) antes de retornar.
+// Enciende el VL53L0X (suelta XSHUT), lo inicializa, toma SENSOR_SAMPLE_COUNT
+// lecturas y devuelve mediana + desviación estándar de las válidas. Vuelve a
+// apagar el sensor (XSHUT bajo) antes de retornar.
 SensorReading readDistance();
 
 // Modo calibración: imprime distancia cruda por serial a 2Hz durante
-// durationMs. No calcula mediana ni ROI reducido (para ver el rango crudo
-// mientras se ajusta el ángulo).
+// durationMs. No calcula mediana (para ver el rango crudo mientras se ajusta
+// el ángulo).
 void runCalibrationStream(uint32_t durationMs);
 
 }  // namespace sensor

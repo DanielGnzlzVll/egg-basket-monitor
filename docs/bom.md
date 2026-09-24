@@ -19,7 +19,7 @@ de la celda (nunca sobre la celda).
 
 | # | Componente | Búsqueda | USD |
 |---|---|---|---|
-| 1 | Módulo VL53L1X, versión pequeña de 3.3 V | `VL53L1X module GY-53L1` | 3-6 |
+| 1 | Módulo ToF TOF200C (VL53L0X) | `TOF200C VL53L0X` | 2-4 |
 | 2 | TP4056 **con protección**, USB-C | `TP4056 USB-C protection DW01` | 0.60 |
 | 3 | Resistencias 1 MΩ 1% (×2) — o cualquier par igual que ya tengas, ver nota abajo | `1M ohm 1% resistor` | 0.20 |
 | 4 | Dupont hembra-hembra 20 cm (pack 40) | `dupont female female 20cm` | 1-2 |
@@ -28,11 +28,16 @@ de la celda (nunca sobre la celda).
 
 ### Los dos ítems que importan
 
-**El VL53L1X (ítem 1).** Hay que pedir explícitamente la versión pequeña de
-3.3 V. Si el módulo trae un regulador AMS1117, su corriente de reposo (~5 mA) es
-50× todo el resto del circuito en reposo, y la batería pasa de durar meses a
-durar semanas. Plan B si llega el equivocado: un load switch con MOSFET-P (~USD 1)
-que le corte la alimentación entera durante el sueño.
+**El sensor (ítem 1).** El módulo instalado es un TOF200C, con un **VL53L0X**
+(el diseño original pedía un VL53L1X; el CAD ya está acotado para el
+TOF200C). No confundir con un VL53L1X: contestan en la misma dirección I2C
+pero necesitan librerías distintas, ver `docs/wiring.md`. El TOF200C trae
+regulador propio: conviene medir su consumo en reposo con XSHUT bajo, porque
+un regulador con corriente de reposo alta (un AMS1117 ronda los 5 mA, 50× el
+resto del circuito dormido) acorta la batería de meses a semanas. Plan B: un
+load switch con MOSFET-P (~USD 1) que le corte la alimentación entera durante
+el sueño. Si el cono fijo de 25° del VL53L0X mide las paredes de la canasta,
+la alternativa es el TOF400C (VL53L1X), con ROI.
 
 **El TP4056 (ítem 2).** Tiene que ser la variante **con protección** (lleva un
 DW01A y un FS8205A junto al chip principal). La versión sin protección es un

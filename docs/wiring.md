@@ -1,7 +1,7 @@
 # Cableado y pinout
 
-Componentes: **ESP32-C3 SuperMini**, sensor ToF **VL53L1X** (módulo pequeño
-GY-53L1, 3.3 V), cargador **TP4056 con protección**, celda **18650**, divisor
+Componentes: **ESP32-C3 SuperMini**, sensor ToF **VL53L0X** (módulo
+**TOF200C**; ver "Módulo del sensor" más abajo), cargador **TP4056 con protección**, celda **18650**, divisor
 resistivo de dos resistencias iguales (1 MΩ/1 MΩ nominal, pero sirve
 cualquier par igual — ver la sección "Cadena de alimentación" más abajo).
 Nada se suelda a la celda; ver `docs/bom.md` para el resto de materiales y
@@ -37,13 +37,13 @@ constexpr int PIN_I2C_SDA = GPIO4_SDA; // nombre que usa el resto del firmware
 
 | Señal | GPIO (= número en la placa) | Va a | Por qué este pin |
 |---|---|---|---|
-| SDA (bus I2C) | GPIO4 | VL53L1X SDA | Se evita el I2C por defecto del C3: GPIO8 es el LED RGB integrado y GPIO9 es el botón BOOT |
-| SCL (bus I2C) | GPIO5 | VL53L1X SCL | Ídem |
-| XSHUT | GPIO6 | VL53L1X XSHUT | Bajo = standby (~5 µA); el firmware lo maneja para apagar el sensor entre lecturas |
+| SDA (bus I2C) | GPIO4 | TOF200C SDA | Se evita el I2C por defecto del C3: GPIO8 es el LED RGB integrado y GPIO9 es el botón BOOT |
+| SCL (bus I2C) | GPIO5 | TOF200C SCL | Ídem |
+| XSHUT | GPIO6 | TOF200C SHUT | Bajo = apagado; el firmware lo lleva a GND entre lecturas y lo suelta (pull-up del módulo) para medir |
 | ADC batería | GPIO3 | Nodo medio del divisor (dos resistencias iguales) | Único ADC libre tras reservar 4/5/6 |
 | Botón BOOT / config | GPIO9 | Botón BOOT de la placa | Reutilizado: sostenerlo al arrancar decide el modo (ver `docs/setup-tutorial.md`) |
 | LED de estado | GPIO8 | LED RGB integrado de la placa | Uso nativo del pin; solo importa como strapping *durante* el reset, no después |
-| 3V3 / GND | — | VL53L1X VCC / GND | Rieles de alimentación de la placa, sin número de GPIO |
+| 3V3 / GND | — | TOF200C VIN / GND | Rieles de alimentación de la placa, sin número de GPIO |
 
 **El bus I2C (SDA + SCL) es lo que conecta el sensor con el ESP32**, y es
 bidireccional: SDA lleva datos en ambos sentidos, SCL es el reloj que genera
@@ -82,7 +82,26 @@ un AMS1117 y hay que cambiar de estrategia: alimentar el riel **3V3
 directamente** desde un módulo HT7333 (quiescent ~4 µA) y no conectar USB y
 batería al mismo tiempo mientras se usa esa ruta.
 
-## Módulo VL53L1X: qué versión pedir
+## Módulo del sensor: TOF200C (VL53L0X)
+
+El módulo instalado es un **TOF200C**, que lleva un **VL53L0X**, no el
+VL53L1X del diseño original. Los dos contestan en la dirección I2C `0x29` y
+se parecen mucho, pero sus registros son incompatibles (8 bits en el
+VL53L0X, 16 bits en el VL53L1X): con la librería del VL53L1X el escaneo I2C
+encuentra el sensor pero `init()` falla siempre. El firmware usa la librería
+`pololu/VL53L0X`. Para distinguirlos: registro `0xC0` = `0xEE` en el
+VL53L0X; registro de 16 bits `0x010F` = `0xEACC` en el VL53L1X. La prueba
+de `pico-sensor-test/` detecta cuál hay conectado.
+
+- **VIN a 3V3, no a 5V.** El TOF200C trae regulador y acepta 5V, pero sus
+  pull-ups de SDA/SCL van a VIN y pondrían 5V en los GPIO del ESP32-C3.
+- **Sin ROI.** El VL53L0X tiene el cono de 25° fijo; el VL53L1X permite
+  estrecharlo. Si el cono toca las paredes de la canasta y las lecturas
+  salen cortas, la salida es un módulo VL53L1X (se vende como **TOF400C**),
+  que se conecta igual pero necesita volver a la librería `pololu/VL53L1X`.
+- **Film protector.** Si mide siempre unos 20 mm, queda film en la ventana.
+
+### Si se cambia a un módulo VL53L1X: qué versión pedir
 
 Explícitamente la versión **pequeña de 3.3 V**. Si el módulo trae un
 regulador AMS1117 igual que el punto anterior, su corriente de reposo
@@ -110,9 +129,9 @@ sostener el botón.
 
 ## Notas de la corona ToF / cono del sensor
 
-El emisor del VL53L1X dispara un cono fijo de 27° que no se puede estrechar;
-solo el receptor admite ROI reducido (hasta 15° con 4×4 SPADs), que es lo que
-usa este firmware. El ángulo físico de montaje se ajusta con la bisagra de
+El VL53L0X del TOF200C tiene un cono fijo de 25° y no admite ROI. (Con un
+VL53L1X el cono es de 27° y el receptor admite ROI reducido hasta 15° con
+4×4 SPADs.) El ángulo físico de montaje se ajusta con la bisagra de
 fricción del `pod` (`cad/sensor_head.scad` + `cad/rim_mount.scad`), no por
 software. Los detalles de por qué el rango útil es el que calcula
 `lib/geometry.scad` están en

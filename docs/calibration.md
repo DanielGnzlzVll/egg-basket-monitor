@@ -1,6 +1,6 @@
 # Calibración del ángulo del sensor
 
-El VL53L1X mide en diagonal a través de la canasta (ver
+El VL53L0X mide en diagonal a través de la canasta (ver
 `docs/superpowers/specs/2026-09-04-egg-basket-monitor-design.md`, sección "El
 cono del emisor decide dónde se monta"). El ángulo correcto no es una
 preferencia: la geometría de tu canasta específica fija una ventana válida
@@ -36,18 +36,21 @@ dos parpadeos verdes.
 ## Qué hace
 
 Durante 60 segundos, el firmware imprime por serial (115200 baudios) una
-lectura cruda del VL53L1X a 2 Hz, sin mediana ni filtrado:
+lectura cruda del VL53L0X a 2 Hz, sin mediana ni filtrado:
 
 ```
-distancia_mm=412 status=0
-distancia_mm=409 status=0
-distancia_mm=1988 status=4
+distancia_mm=412 status=11
+distancia_mm=409 status=11
+distancia_mm=8190 status=4 (invalida)
 ...
 ```
 
-`status` es el `RangeStatus` crudo de la librería Pololu VL53L1X (`0` =
-válido; otros valores indican señal débil, señal cruzada o fuera de rango —
-ver el datasheet del VL53L1X para la tabla completa).
+`status` es el estado crudo de la medición del VL53L0X (bits 6..3 del
+registro `RESULT_RANGE_STATUS`): `11` = medición completa y válida; otros
+valores indican señal débil (`4`, `5`), sigma alto (`7`), fase fuera de
+límites (`6`, `9`) o fallo de hardware (`1`-`3`). Las líneas marcadas
+`(invalida)` son las que el ciclo normal descarta, incluido 8190/8191 mm,
+que es "sin objetivo en rango".
 
 ## Cómo elegir el ángulo
 

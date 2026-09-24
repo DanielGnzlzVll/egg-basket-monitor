@@ -26,7 +26,7 @@ pio device monitor  # opcional, para ver los logs
 ```
 
 `platformio.ini` ya lista las librerías necesarias (`WiFiManager`,
-`pololu/VL53L1X`, `Adafruit NeoPixel`); PlatformIO las descarga solo en el
+`pololu/VL53L0X`, `Adafruit NeoPixel`); PlatformIO las descarga solo en el
 primer build.
 
 No hay ningún `secrets.h` que editar: toda la configuración se carga después,
@@ -153,5 +153,5 @@ RGB direccionable, los mismos eventos se traducen a parpadeos simples (ver
   internet real aunque el WiFi haya conectado).
 - **El sensor no inicializa** (mensaje de error en modo calibración, o
   "Sensor: fallo de lectura" en el log del ciclo normal): revisar
-  `docs/wiring.md`, sección VL53L1X, y confirmar que el módulo es la versión
-  de 3.3 V.
+  `docs/wiring.md`, sección "Módulo del sensor", y confirmar que el chip es
+  un VL53L0X (TOF200C); con un VL53L1X hay que volver a su librería.

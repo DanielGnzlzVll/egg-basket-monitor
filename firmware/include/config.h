@@ -53,9 +53,8 @@ constexpr uint32_t PORTAL_TIMEOUT_S = 5 * 60;        // 5 minutos sin actividad
 // ---------------------------------------------------------------------------
 // Medición
 // ---------------------------------------------------------------------------
-constexpr int SENSOR_SAMPLE_COUNT = 20; 
-constexpr uint16_t SENSOR_ROI_WIDTH = 4;   // SPADs, ROI mínimo del VL53L1X
-constexpr uint16_t SENSOR_ROI_HEIGHT = 4;
+// El VL53L0X (módulo TOF200C) no tiene ROI: el cono de 25° es fijo.
+constexpr int SENSOR_SAMPLE_COUNT = 20;
 
 // ---------------------------------------------------------------------------
 // Batería

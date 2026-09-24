@@ -1,7 +1,7 @@
 # Egg Basket Monitor
 
 Sensor de nivel para una canasta de huevos: mide distancia con un ToF
-VL53L1X, duerme casi todo el tiempo en un ESP32-C3 SuperMini a batería, y
+VL53L0X (módulo TOF200C), duerme casi todo el tiempo en un ESP32-C3 SuperMini a batería, y
 manda una lectura por hora a Grafana Cloud vía Influx line protocol. Sin PCB
 a medida, sin infraestructura intermedia, sin conteo exacto de huevos —
 solo una alerta antes de que se acaben.
@@ -45,7 +45,8 @@ spec de diseño.
 
 Lista de materiales completa en [`docs/bom.md`](docs/bom.md). Resumen: ya
 tenés el ESP32-C3 SuperMini y la celda 18650; hay que comprar el módulo
-VL53L1X (versión pequeña de 3.3 V), un TP4056 con protección, dos
+ToF TOF200C (VL53L0X; ver [`docs/wiring.md`](docs/wiring.md) sobre por qué
+no la librería del VL53L1X), un TP4056 con protección, dos
 resistencias de 1 MΩ y tornillería métrica — todo por ~USD 8-12.
 
 ## Licencia
