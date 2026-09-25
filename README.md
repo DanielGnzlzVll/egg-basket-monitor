@@ -187,8 +187,13 @@ conexión de la batería) decide el modo:
 | BOOT al arrancar | Modo | LED |
 |---|---|---|
 | Sin tocar | Ciclo normal: mide, envía, duerme | Verde corto = envío OK · rojo corto = falló, queda para reintentar |
+| Sin tocar, **con monitor serie abierto por USB** | Calibración automática | Dos parpadeos verdes |
 | 3-8 s | Calibración: 60 s de distancia cruda por serial a 2 Hz | Dos parpadeos verdes |
 | Más de 8 s | Portal de configuración `EggBasket-Setup` | Tres parpadeos azules y queda azul fijo |
+
+La calibración automática sólo mira si hay una PC leyendo el puerto serie:
+en batería no cuesta nada. Para ver el ciclo normal por serial, poner
+`AUTO_CALIBRATION_ON_SERIAL` a `0` en `firmware/include/config.h`.
 
 Tres parpadeos rojos significan batería por debajo de 3.3 V: el dispositivo
 entra en sueño indefinido para proteger la celda hasta que se la cargue.

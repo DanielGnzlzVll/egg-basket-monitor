@@ -70,7 +70,10 @@ cd firmware
 pio device monitor
 ```
 
-Cada ciclo normal imprime algo así:
+Ojo: con el monitor abierto el dispositivo entra solo a **modo calibración**
+(ver `docs/calibration.md`). Para ver el ciclo normal por serial, poner
+`AUTO_CALIBRATION_ON_SERIAL` a `0` en `firmware/include/config.h` y volver a
+flashear. Cada ciclo normal imprime algo así:
 
 ```
 === Ciclo normal ===

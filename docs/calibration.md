@@ -29,9 +29,18 @@ bueno.
 
 ## Cómo entrar
 
-Ver `docs/setup-tutorial.md`, sección 5: sostener BOOT entre 3 y 8 segundos
-al arrancar (power-on, reset, o reconectando la batería). El LED confirma con
-dos parpadeos verdes.
+**Automático con la PC:** con la placa conectada por USB y el monitor serie
+abierto (`pio device monitor` o el enchufe de PlatformIO en VS Code), cada
+arranque entra solo a este modo, sin tocar ningún botón. Si el monitor se
+abre después, alcanza con un RESET. Mientras el monitor siga abierto, al
+terminar los 60 s reinicia y vuelve a entrar, así que la lectura sigue de
+corrido. Para ver por serial el ciclo normal (sensor, WiFi y envío a
+Grafana), poner `AUTO_CALIBRATION_ON_SERIAL` a `0` en
+`firmware/include/config.h`. En batería o con un cargador no cambia nada.
+
+**Con el botón:** sostener BOOT entre 3 y 8 segundos al arrancar (power-on,
+reset, o reconectando la batería); ver `docs/setup-tutorial.md`, sección 6.
+El LED confirma con dos parpadeos verdes en los dos casos.
 
 ## Qué hace
 

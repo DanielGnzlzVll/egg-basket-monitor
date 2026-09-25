@@ -43,6 +43,14 @@ constexpr uint32_t CALIBRATION_HOLD_MIN_MS = 3000;   // 3-8s => modo calibració
 constexpr uint32_t CALIBRATION_HOLD_MAX_MS = 8000;
 constexpr uint32_t CONFIG_HOLD_MIN_MS = 8000;        // >8s => modo config
 
+// Con un monitor serie abierto por USB al arrancar, entra solo a modo
+// calibración, sin sostener BOOT. En batería no cuesta nada (sin host USB se
+// descarta en ~20 ms). Poner a 0 para ver por serial el ciclo normal.
+#define AUTO_CALIBRATION_ON_SERIAL 1
+// Cuánto esperar a que el monitor se (re)conecte tras un reset o un flasheo,
+// sólo cuando hay una PC conectada por USB.
+constexpr uint32_t SERIAL_MONITOR_WAIT_MS = 3000;
+
 // ---------------------------------------------------------------------------
 // Portal de configuración (WiFiManager)
 // ---------------------------------------------------------------------------
