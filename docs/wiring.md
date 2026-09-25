@@ -13,9 +13,12 @@ Nada se suelda a la celda; ver `docs/bom.md` para el resto de materiales y
 
 ![Cadena de alimentación](img/power-chain.svg)
 
-Ambos son SVG locales (sin dependencias externas); se pueden abrir
-directamente en el navegador o en cualquier editor de imágenes vectoriales
-para imprimir o anotar.
+El esquema dibuja el SuperMini con sus 16 pines en la posición real (vista
+desde arriba, USB-C arriba): los usados en dorado, los libres en gris. El
+orden físico de los pines del TOF200C cambia según el fabricante, así que
+guiate por el nombre serigrafiado. Ambos son SVG locales (sin dependencias
+externas); se pueden abrir directamente en el navegador o en cualquier
+editor de imágenes vectoriales para imprimir o anotar.
 
 ## ¿El número de pin es el que trae grabado la placa o un nombre de código?
 
@@ -47,9 +50,9 @@ constexpr int PIN_I2C_SDA = GPIO4_SDA; // nombre que usa el resto del firmware
 
 **El bus I2C (SDA + SCL) es lo que conecta el sensor con el ESP32**, y es
 bidireccional: SDA lleva datos en ambos sentidos, SCL es el reloj que genera
-siempre el ESP32-C3 como maestro del bus. El diagrama de abajo lo resalta
-con un recuadro punteado "Bus I2C" para que no se confunda con XSHUT (que sí
-es unidireccional, ESP32 → sensor).
+siempre el ESP32-C3 como maestro del bus. En el esquema, SDA va en azul y
+SCL en amarillo, y XSHUT en verde para que no se confunda con el bus (XSHUT
+sí es unidireccional, ESP32 → sensor).
 
 ## Cadena de alimentación
 
@@ -90,8 +93,7 @@ se parecen mucho, pero sus registros son incompatibles (8 bits en el
 VL53L0X, 16 bits en el VL53L1X): con la librería del VL53L1X el escaneo I2C
 encuentra el sensor pero `init()` falla siempre. El firmware usa la librería
 `pololu/VL53L0X`. Para distinguirlos: registro `0xC0` = `0xEE` en el
-VL53L0X; registro de 16 bits `0x010F` = `0xEACC` en el VL53L1X. La prueba
-de `pico-sensor-test/` detecta cuál hay conectado.
+VL53L0X; registro de 16 bits `0x010F` = `0xEACC` en el VL53L1X.
 
 - **VIN a 3V3, no a 5V.** El TOF200C trae regulador y acepta 5V, pero sus
   pull-ups de SDA/SCL van a VIN y pondrían 5V en los GPIO del ESP32-C3.

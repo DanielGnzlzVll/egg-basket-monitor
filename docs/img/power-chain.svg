@@ -1,57 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 260" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#2b2f36"/>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#d62828"/>
+    </marker>
+    <marker id="ao" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#f07c00"/>
+    </marker>
+    <marker id="ag" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#6b7280"/>
     </marker>
   </defs>
   <style>
-    .box { fill:#f4f6f8; stroke:#2b2f36; stroke-width:2; }
-    .label { fill:#2b2f36; font-weight:600; }
-    .pin { fill:#5b6270; font-size:12px; }
-    .arrow { stroke:#2b2f36; stroke-width:2; fill:none; marker-end:url(#arrow); }
+    .title { font-size:18px; font-weight:700; fill:#2b2f36; }
+    .h { font-size:15px; font-weight:700; fill:#2b2f36; }
+    .sub { font-size:12px; fill:#6b7280; }
+    .v { font-size:12.5px; font-weight:700; }
+    .p { fill:none; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+    .note { font-size:12.5px; fill:#5b3a00; }
   </style>
-
-  <rect class="box" x="10" y="80" width="140" height="80"/>
-  <text class="label" x="25" y="110">Celda 18650</text>
-  <text class="pin" x="25" y="130">3000 mAh</text>
-
-  <rect class="box" x="200" y="80" width="160" height="80"/>
-  <text class="label" x="215" y="105">TP4056</text>
-  <text class="pin" x="215" y="123">con proteccion</text>
-  <text class="pin" x="215" y="140">B+/B- -&gt; OUT+/OUT-</text>
-
-  <rect class="box" x="410" y="80" width="180" height="80"/>
-  <text class="label" x="425" y="105">ESP32-C3 SuperMini</text>
-  <text class="pin" x="425" y="123">pin 5V -&gt; LDO onboard</text>
-  <text class="pin" x="425" y="140">-&gt; riel 3V3</text>
-
-  <rect class="box" x="640" y="20" width="160" height="70"/>
-  <text class="label" x="655" y="45">Divisor R1=R2</text>
-  <text class="pin" x="655" y="63">nodo medio -&gt; GPIO3</text>
-
-  <rect class="box" x="640" y="150" width="160" height="70"/>
-  <text class="label" x="655" y="175">VL53L0X</text>
-  <text class="pin" x="655" y="193">VCC 3V3 / GND</text>
-
-  <rect class="box" x="850" y="20" width="130" height="70"/>
-  <text class="label" x="862" y="50">Lectura de</text>
-  <text class="label" x="862" y="68">bateria (ADC)</text>
-
-  <rect class="box" x="850" y="150" width="130" height="70"/>
-  <text class="label" x="862" y="180">Medicion de</text>
-  <text class="label" x="862" y="198">distancia (I2C)</text>
-
-  <path class="arrow" d="M150,120 H200"/>
-  <path class="arrow" d="M360,120 H410"/>
-  <path class="arrow" d="M590,105 C610,105 610,55 640,55"/>
-  <path class="arrow" d="M590,135 C610,135 610,185 640,185"/>
-  <path class="arrow" d="M800,55 H850"/>
-  <path class="arrow" d="M800,185 H850"/>
-
-  <text x="10" y="230" font-size="13" fill="#5b6270">
-    Riesgo abierto: si el LDO onboard es un AMS1117 (dropout 1.1V), el sistema muere por debajo de ~4.4V.
-  </text>
-  <text x="10" y="248" font-size="13" fill="#5b6270">
-    Medir con fuente variable; si aplica, alimentar 3V3 desde un HT7333 en vez de usar el pin 5V.
-  </text>
+  <rect x="0" y="0" width="1200" height="400" fill="#ffffff"/>
+  <text class="title" x="20" y="30">Cadena de alimentación</text>
+  <rect x="530" y="72" width="472" height="238" rx="12" fill="#f3f5f8" stroke="#8b95a5" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text class="sub" x="544" y="298" font-weight="700">Placa ESP32-C3 SuperMini</text>
+  <path class="p" d="M150,130 H238" stroke="#d62828" marker-end="url(#ar)"/>
+  <text class="v" x="191" y="120" text-anchor="middle" fill="#d62828">3.0–4.2 V</text>
+  <text class="sub" x="191" y="150" text-anchor="middle">B+ / B−</text>
+  <path class="p" d="M390,130 H553" stroke="#d62828" marker-end="url(#ar)"/>
+  <text class="v" x="470" y="120" text-anchor="middle" fill="#d62828">OUT+  3.0–4.2 V</text>
+  <path class="p" d="M635,130 H683" stroke="#d62828" marker-end="url(#ar)"/>
+  <path class="p" d="M800,130 H878" stroke="#d62828" marker-end="url(#ar)"/>
+  <text class="v" x="855" y="120" text-anchor="middle" fill="#d62828">3.3 V</text>
+  <path class="p" d="M830,130 V48 H1128 V98" stroke="#d62828" marker-end="url(#ar)"/>
+  <text class="v" x="975" y="40" text-anchor="middle" fill="#d62828">riel 3V3 → VIN del sensor (3.3 V)</text>
+  <path class="p" d="M440,130 V213" stroke="#d62828" marker-end="url(#ar)"/>
+  <text class="v" x="432" y="180" text-anchor="end" fill="#d62828">3.0–4.2 V</text>
+  <path class="p" d="M500,247 H878" stroke="#f07c00" marker-end="url(#ao)"/>
+  <text class="v" x="700" y="239" text-anchor="middle" fill="#b35900">Vbat/2 · 1.5–2.1 V</text>
+  <path d="M990,190 H1068" fill="none" stroke="#6b7280" stroke-width="2" stroke-dasharray="5,4"/>
+  <text class="sub" x="1036" y="182" text-anchor="middle">I2C</text>
+  <text class="sub" x="1036" y="206" text-anchor="middle">XSHUT</text>
+  <rect x="20" y="98" width="130" height="64" rx="8" fill="#e8f5ee" stroke="#3f9f6b" stroke-width="2"/>
+  <text class="h" x="85" y="126.5" text-anchor="middle">Celda 18650</text>
+  <text class="sub" x="85" y="143.5" text-anchor="middle">3.0–4.2 V</text>
+  <rect x="240" y="92" width="150" height="76" rx="8" fill="#e8f0fb" stroke="#2b5ea8" stroke-width="2"/>
+  <text class="h" x="315" y="118" text-anchor="middle">TP4056</text>
+  <text class="sub" x="315" y="135" text-anchor="middle">con protección</text>
+  <text class="sub" x="315" y="152" text-anchor="middle">B± → OUT±</text>
+  <rect x="555" y="102" width="80" height="56" rx="8" fill="#ffffff" stroke="#2d3440" stroke-width="2"/>
+  <text class="h" x="595" y="135" text-anchor="middle">pin 5V</text>
+  <rect x="685" y="102" width="115" height="56" rx="8" fill="#ffffff" stroke="#2d3440" stroke-width="2"/>
+  <text class="h" x="742.5" y="126.5" text-anchor="middle">LDO</text>
+  <text class="sub" x="742.5" y="143.5" text-anchor="middle">onboard</text>
+  <rect x="880" y="98" width="110" height="174" rx="8" fill="#2d3440" stroke="#161a20" stroke-width="2"/>
+  <text x="935" y="124" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">ESP32-C3</text>
+  <text x="890" y="148" font-size="12" fill="#c9d1dc">3V3</text>
+  <text x="890" y="251" font-size="12" font-weight="700" fill="#ffb366">GPIO3</text>
+  <text x="890" y="266" font-size="12" fill="#c9d1dc">(ADC)</text>
+  <rect x="1076" y="100" width="104" height="120" rx="8" fill="#e6ecf7" stroke="#23457a" stroke-width="2"/>
+  <text class="h" x="1128" y="148" text-anchor="middle">TOF200C</text>
+  <text class="sub" x="1128" y="165" text-anchor="middle">(VL53L0X)</text>
+  <text class="sub" x="1128" y="182" text-anchor="middle">VIN = 3V3</text>
+  <rect x="380" y="215" width="120" height="64" rx="8" fill="#fff6e8" stroke="#d98a00" stroke-width="2"/>
+  <text class="h" x="440" y="243.5" text-anchor="middle">Divisor</text>
+  <text class="sub" x="440" y="260.5" text-anchor="middle">R1 = R2 (1 MΩ)</text>
+  <text class="sub" x="440" y="296" text-anchor="middle">R2 a GND</text>
+  <circle cx="440" cy="130" r="5" fill="#d62828" stroke="#ffffff" stroke-width="1.2"/>
+  <circle cx="830" cy="130" r="5" fill="#d62828" stroke="#ffffff" stroke-width="1.2"/>
+  <rect x="20" y="322" width="1160" height="62" rx="8" fill="#fff4e0" stroke="#e0a030" stroke-width="1.5"/>
+  <text class="note" x="34" y="344"><tspan font-weight="700">LDO a verificar:</tspan> con un ME6211/SGM2212 (~0.2 V de caída) anda con toda la celda; con un AMS1117 (1.1 V) se apaga por debajo de ~4.4 V.</text>
+  <text class="note" x="34" y="366">Medirlo bajando una fuente variable desde 4.2 V en el pin 5V. Plan B: HT7333 alimentando el riel 3V3 directo. GND común (OUT− → G) no dibujado.</text>
 </svg>

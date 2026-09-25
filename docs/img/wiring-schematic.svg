@@ -1,148 +1,208 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 700" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+<svg xmlns="http://www.w3.org/2000/svg" width="1130" height="712" viewBox="0 0 1130 712" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13">
   <style>
-    .box { fill:#f4f6f8; stroke:#2b2f36; stroke-width:2; rx:8; }
-    .label { fill:#2b2f36; font-weight:600; }
-    .pin { fill:#5b6270; font-size:12px; }
-    .pin-hi { fill:#2b2f36; font-size:12px; font-weight:600; }
-    .wire { stroke-width:2.5; fill:none; }
-    .wire-label { font-size:11px; font-weight:600; }
-    .w-pos { stroke:#c0392b; }
-    .w-gnd { stroke:#1a1a1a; }
-    .w-sda { stroke:#e6a700; }
-    .w-scl { stroke:#2e8b57; }
-    .w-xshut { stroke:#2266cc; }
-    .w-adc { stroke:#d35400; }
-    .i2c-group { fill:none; stroke:#e6a700; stroke-width:1.5; stroke-dasharray:5,4; rx:6; }
-    .callout { fill:#fff8e6; stroke:#c9a227; stroke-width:1.5; rx:6; }
-    .callout text { font-size:12.5px; fill:#5b4400; }
+    .t { fill:#2b2f36; }
+    .title { font-size:18px; font-weight:700; fill:#2b2f36; }
+    .h { font-size:15px; font-weight:700; fill:#2b2f36; }
+    .sub { font-size:12px; fill:#6b7280; }
+    .silk { font-size:13px; font-weight:700; fill:#ffffff; }
+    .silk-dim { font-size:12px; fill:#8b95a5; }
+    .pinlbl { font-size:13px; font-weight:700; fill:#ffffff; }
+    .wl { font-size:12px; font-weight:700; }
+    .w { fill:none; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+    .note { font-size:12.5px; fill:#2b2f36; }
   </style>
-
-  <!-- ================= CALLOUT: numeracion de pines ================= -->
-  <rect class="callout" x="20" y="14" width="1040" height="46"/>
-  <text x="34" y="32">
-    Los numeros GPIOx de este diagrama son los mismos que trae serigrafiado el ESP32-C3 SuperMini junto a cada pin
-  </text>
-  <text x="34" y="48">
-    (p. ej. el pin marcado "4" en la placa es GPIO4). No hay traduccion tipo D0/D1 como en otras placas Arduino/ESP8266.
-  </text>
-
-  <!-- ================= 18650 cell ================= -->
-  <rect class="box" x="20" y="100" width="150" height="80"/>
-  <text class="label" x="35" y="130">Celda 18650</text>
-  <text class="pin" x="35" y="150">3.0 - 4.2 V</text>
-  <text class="pin" x="35" y="166">B+ / B-</text>
-
-  <!-- ================= TP4056 ================= -->
-  <rect class="box" x="230" y="100" width="170" height="90"/>
-  <text class="label" x="245" y="125">TP4056</text>
-  <text class="pin" x="245" y="143">con proteccion</text>
-  <text class="pin" x="245" y="159">(DW01A + FS8205A)</text>
-  <text class="pin" x="245" y="178">OUT+ / OUT-</text>
-
-  <!-- ================= ESP32-C3 SuperMini ================= -->
-  <rect class="box" x="470" y="80" width="260" height="340"/>
-  <text class="label" x="485" y="105">ESP32-C3 SuperMini</text>
-  <text class="pin" x="485" y="125">pin 5V (a LDO onboard)</text>
-
-  <!-- fila 3V3 -->
-  <text class="pin-hi" x="485" y="205">Pin "3V3" (riel, no es GPIO)</text>
-  <text class="pin" x="640" y="205">-&gt; alimentacion</text>
-
-  <!-- fila GND -->
-  <text class="pin-hi" x="485" y="231">Pin "G" (GND, no es GPIO)</text>
-
-  <!-- fila SDA -->
-  <text class="pin-hi" x="485" y="257">GPIO4  ("4" en la placa)</text>
-  <text class="pin" x="640" y="257">-&gt; SDA</text>
-
-  <!-- fila SCL -->
-  <text class="pin-hi" x="485" y="283">GPIO5  ("5" en la placa)</text>
-  <text class="pin" x="640" y="283">-&gt; SCL</text>
-
-  <!-- fila XSHUT -->
-  <text class="pin-hi" x="485" y="309">GPIO6  ("6" en la placa)</text>
-  <text class="pin" x="640" y="309">-&gt; XSHUT</text>
-
-  <!-- fila ADC bateria -->
-  <text class="pin-hi" x="485" y="335">GPIO3  ("3" en la placa)</text>
-  <text class="pin" x="640" y="335">-&gt; ADC bateria</text>
-
-  <!-- filas integradas -->
-  <text class="pin" x="485" y="365">GPIO9 ("9") -&gt; boton BOOT (integrado, sin cablear)</text>
-  <text class="pin" x="485" y="385">GPIO8 ("8") -&gt; LED RGB (integrado, sin cablear)</text>
-
-  <!-- ================= TOF200C (VL53L0X) module ================= -->
-  <!-- Filas alineadas exactamente con las mismas y que el bloque ESP32-C3 -->
-  <rect class="box" x="850" y="150" width="210" height="200"/>
-  <text class="label" x="865" y="175">VL53L0X (TOF200C)</text>
-  <text class="pin-hi" x="865" y="205">VCC (3V3)</text>
-  <text class="pin-hi" x="865" y="231">GND</text>
-  <text class="pin-hi" x="865" y="257">SDA</text>
-  <text class="pin-hi" x="865" y="283">SCL</text>
-  <text class="pin-hi" x="865" y="309">XSHUT</text>
-
-  <!-- ================= Grupo bus I2C (resaltado) ================= -->
-  <rect class="i2c-group" x="735" y="243" width="115" height="54"/>
-  <text x="738" y="236" font-size="12" fill="#8a6d00" font-weight="700">Bus I2C</text>
-
-  <!-- ================= Wires: cell -> TP4056 ================= -->
-  <path class="wire w-pos" d="M170,120 H230"/>
-  <path class="wire w-gnd" d="M170,160 H230"/>
-
-  <!-- TP4056 -> ESP32 5V -->
-  <path class="wire w-pos" d="M400,120 H470"/>
-  <path class="wire w-gnd" d="M400,170 H440 V395 H470"/>
-
-  <!-- TP4056 OUT -> divider top -->
-  <path class="wire w-pos" d="M315,190 V300 H230"/>
-
-  <!-- ================= Battery divider ================= -->
-  <rect class="box" x="230" y="280" width="170" height="100"/>
-  <text class="label" x="245" y="305">Divisor bateria (R1 = R2)</text>
-  <text class="pin" x="245" y="325">R1 (a pin 5V/OUT+)</text>
-  <text class="pin" x="245" y="345">R2 (a GND) - cualquier valor igual a R1</text>
-  <text class="pin" x="245" y="365">nodo medio -&gt; GPIO3</text>
-
-  <!-- divider -> GND -->
-  <path class="wire w-gnd" d="M315,380 V420 H190 V170 H230"/>
-
-  <!-- divider mid -> GPIO3 -->
-  <path class="wire w-adc" d="M400,325 H440 V335 H470"/>
-
-  <!-- ================= ESP32 <-> TOF200C (filas alineadas) ================= -->
-  <path class="wire w-pos" d="M730,201 H850"/>
-  <text class="wire-label" x="745" y="196" fill="#c0392b">3V3</text>
-
-  <path class="wire w-gnd" d="M730,227 H850"/>
-  <text class="wire-label" x="745" y="222" fill="#1a1a1a">GND</text>
-
-  <path class="wire w-sda" d="M730,253 H850"/>
-  <text class="wire-label" x="745" y="248" fill="#8a6d00">SDA</text>
-
-  <path class="wire w-scl" d="M730,279 H850"/>
-  <text class="wire-label" x="745" y="274" fill="#1f6b45">SCL</text>
-
-  <path class="wire w-xshut" d="M730,305 H850"/>
-  <text class="wire-label" x="745" y="300" fill="#174a8a">XSHUT</text>
-
-  <!-- ================= Legend ================= -->
-  <g transform="translate(20,460)">
-    <text x="0" y="0" font-weight="700" font-size="13">Leyenda de color</text>
-    <line x1="0" y1="16" x2="30" y2="16" class="wire w-pos"/><text x="36" y="20" font-size="12">V+ / 3V3 / OUT+</text>
-    <line x1="0" y1="36" x2="30" y2="36" class="wire w-gnd"/><text x="36" y="40" font-size="12">GND</text>
-    <line x1="0" y1="56" x2="30" y2="56" class="wire w-sda"/><text x="36" y="60" font-size="12">SDA (I2C, bidireccional)</text>
-    <line x1="0" y1="76" x2="30" y2="76" class="wire w-scl"/><text x="36" y="80" font-size="12">SCL (I2C, reloj generado por el ESP32)</text>
-    <line x1="0" y1="96" x2="30" y2="96" class="wire w-xshut"/><text x="36" y="100" font-size="12">XSHUT (control, ESP32 -&gt; sensor)</text>
-    <line x1="0" y1="116" x2="30" y2="116" class="wire w-adc"/><text x="36" y="120" font-size="12">Divisor -&gt; ADC bateria</text>
-  </g>
-
-  <text x="20" y="620" font-size="13" fill="#5b6270">
-    Nota: verificar con fuente variable si el LDO del C3 SuperMini es de baja caida (ME6211/SGM2212)
-  </text>
-  <text x="20" y="640" font-size="13" fill="#5b6270">
-    antes de confiar el pin 5V con 3.7-4.2V. Si es un AMS1117, alimentar 3V3 desde un HT7333 en su lugar.
-  </text>
-  <text x="20" y="665" font-size="13" fill="#5b6270">
-    Ver docs/superpowers/specs/2026-09-04-egg-basket-monitor-design.md, seccion "Conexionado".
-  </text>
+  <rect x="0" y="0" width="1130" height="712" fill="#ffffff"/>
+  <text class="title" x="20" y="32">Esquema de conexionado</text>
+  <text class="sub" x="20" y="52">ESP32-C3 SuperMini visto desde arriba (componentes hacia arriba, USB-C arriba). Cables Dupont; nada va soldado a la celda.</text>
+  <!-- wires (drawn under the modules) -->
+  <path class="w" d="M68,142 V122 H130 V180 H184" stroke="#d62828"/>
+  <path class="w" d="M96,320 H145 V205 H184" stroke="#1a1a1a"/>
+  <path class="w" d="M306,180 H350 V170 H556" stroke="#d62828"/>
+  <path class="w" d="M306,205 H360 V545 H920 V330 H976" stroke="#1a1a1a"/>
+  <path class="w" d="M556,210 H480 V545" stroke="#1a1a1a"/>
+  <path class="w" d="M556,250 H500 V525 H900 V290 H976" stroke="#d62828"/>
+  <path class="w" d="M556,290 H520 V505 H880 V250 H976" stroke="#1f6fd1"/>
+  <path class="w" d="M684,170 H976" stroke="#e0b000"/>
+  <path class="w" d="M684,210 H976" stroke="#2a9d3a"/>
+  <path class="w" d="M430,170 V215" stroke="#d62828"/>
+  <path class="w" d="M430,285 V375" stroke="#f07c00"/>
+  <path class="w" d="M430,445 V545" stroke="#1a1a1a"/>
+  <path class="w" d="M430,330 H474 a6,6 0 0 1 12,0 H494 a6,6 0 0 1 12,0 H514 a6,6 0 0 1 12,0 H556" stroke="#f07c00"/>
+  <circle cx="430" cy="170" r="4.5" fill="#d62828" stroke="#ffffff" stroke-width="1.2"/>
+  <circle cx="430" cy="330" r="4.5" fill="#f07c00" stroke="#ffffff" stroke-width="1.2"/>
+  <circle cx="430" cy="545" r="4.5" fill="#1a1a1a" stroke="#ffffff" stroke-width="1.2"/>
+  <circle cx="480" cy="545" r="4.5" fill="#1a1a1a" stroke="#ffffff" stroke-width="1.2"/>
+  <!-- ESP32-C3 SuperMini -->
+  <text class="h" x="620" y="98" text-anchor="middle">ESP32-C3 SuperMini</text>
+  <rect x="540" y="130" width="160" height="350" rx="10" fill="#2d3440" stroke="#161a20" stroke-width="2"/>
+  <rect x="588" y="110" width="64" height="30" rx="8" fill="#c5cad3" stroke="#7d8591" stroke-width="2"/>
+  <rect x="600" y="118" width="40" height="10" rx="5" fill="#7d8591"/>
+  <rect x="596" y="186" width="48" height="48" rx="3" fill="#161a20" stroke="#4a5363"/>
+  <text x="620" y="215" text-anchor="middle" font-size="12" fill="#8b95a5">C3</text>
+  <rect x="608" y="318" width="24" height="16" rx="2" fill="#f5f5f5" stroke="#8b95a5"/>
+  <text x="620" y="352" text-anchor="middle" font-size="12" fill="#c9d1dc">LED</text>
+  <rect x="603" y="384" width="34" height="26" rx="3" fill="#b8bec8" stroke="#8b95a5"/>
+  <circle cx="620" cy="397" r="7" fill="#50596a"/>
+  <text x="620" y="428" text-anchor="middle" font-size="12" fill="#c9d1dc">BOOT</text>
+  <circle cx="556" cy="170" r="9" fill="#e3b23c" stroke="#d62828" stroke-width="3"/>
+  <circle cx="556" cy="170" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="572" y="175">5V</text>
+  <circle cx="556" cy="210" r="9" fill="#e3b23c" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="556" cy="210" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="572" y="215">G</text>
+  <circle cx="556" cy="250" r="9" fill="#e3b23c" stroke="#d62828" stroke-width="3"/>
+  <circle cx="556" cy="250" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="572" y="255">3.3</text>
+  <circle cx="556" cy="290" r="9" fill="#e3b23c" stroke="#1f6fd1" stroke-width="3"/>
+  <circle cx="556" cy="290" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="572" y="295">4</text>
+  <circle cx="556" cy="330" r="9" fill="#e3b23c" stroke="#f07c00" stroke-width="3"/>
+  <circle cx="556" cy="330" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="572" y="335">3</text>
+  <circle cx="556" cy="370" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="556" cy="370" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="572" y="375">2</text>
+  <circle cx="556" cy="410" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="556" cy="410" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="572" y="415">1</text>
+  <circle cx="556" cy="450" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="556" cy="450" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="572" y="455">0</text>
+  <circle cx="684" cy="170" r="9" fill="#e3b23c" stroke="#e0b000" stroke-width="3"/>
+  <circle cx="684" cy="170" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="668" y="175" text-anchor="end">5</text>
+  <circle cx="684" cy="210" r="9" fill="#e3b23c" stroke="#2a9d3a" stroke-width="3"/>
+  <circle cx="684" cy="210" r="3.5" fill="#2d3440"/>
+  <text class="silk" x="668" y="215" text-anchor="end">6</text>
+  <circle cx="684" cy="250" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="250" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="255" text-anchor="end">7</text>
+  <circle cx="684" cy="290" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="290" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="295" text-anchor="end">8</text>
+  <circle cx="684" cy="330" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="330" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="335" text-anchor="end">9</text>
+  <circle cx="684" cy="370" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="370" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="375" text-anchor="end">10</text>
+  <circle cx="684" cy="410" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="410" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="415" text-anchor="end">20</text>
+  <circle cx="684" cy="450" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="684" cy="450" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="668" y="455" text-anchor="end">21</text>
+  <text class="sub" x="712" y="295">GPIO8: LED integrado</text>
+  <text class="sub" x="712" y="335">GPIO9: botón BOOT</text>
+  <!-- TOF200C -->
+  <text class="h" x="1030" y="112" text-anchor="middle">TOF200C</text>
+  <text class="sub" x="1030" y="128" text-anchor="middle">(VL53L0X)</text>
+  <rect x="960" y="140" width="140" height="260" rx="8" fill="#23457a" stroke="#132a4d" stroke-width="2"/>
+  <rect x="1046" y="236" width="36" height="58" rx="4" fill="#111418" stroke="#4a5363"/>
+  <circle cx="1064" cy="252" r="6" fill="#3b2f5c" stroke="#8b95a5"/>
+  <circle cx="1064" cy="278" r="6" fill="#3b2f5c" stroke="#8b95a5"/>
+  <circle cx="976" cy="170" r="9" fill="#e3b23c" stroke="#e0b000" stroke-width="3"/>
+  <circle cx="976" cy="170" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="992" y="175">SCL</text>
+  <circle cx="976" cy="210" r="9" fill="#e3b23c" stroke="#2a9d3a" stroke-width="3"/>
+  <circle cx="976" cy="210" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="992" y="215">SHUT</text>
+  <circle cx="976" cy="250" r="9" fill="#e3b23c" stroke="#1f6fd1" stroke-width="3"/>
+  <circle cx="976" cy="250" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="992" y="255">SDA</text>
+  <circle cx="976" cy="290" r="9" fill="#e3b23c" stroke="#d62828" stroke-width="3"/>
+  <circle cx="976" cy="290" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="992" y="295">VIN</text>
+  <circle cx="976" cy="330" r="9" fill="#e3b23c" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="976" cy="330" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="992" y="335">GND</text>
+  <circle cx="976" cy="370" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="976" cy="370" r="3" fill="#2d3440"/>
+  <text class="silk-dim" x="992" y="375">INT</text>
+  <text class="silk-dim" x="992" y="392">sin conectar</text>
+  <rect x="944" y="418" width="172" height="50" rx="6" fill="#fff4e0" stroke="#e0a030" stroke-width="1.5"/>
+  <text x="1030" y="438" text-anchor="middle" font-size="13" font-weight="700" fill="#8a4b00">VIN a 3V3, no a 5V</text>
+  <text x="1030" y="456" text-anchor="middle" font-size="12" fill="#8a4b00">pull-ups SDA/SCL van a VIN</text>
+  <!-- TP4056 -->
+  <text class="h" x="245" y="98" text-anchor="middle">TP4056 con protección</text>
+  <rect x="215" y="114" width="60" height="28" rx="8" fill="#c5cad3" stroke="#7d8591" stroke-width="2"/>
+  <rect x="227" y="121" width="36" height="9" rx="4.5" fill="#7d8591"/>
+  <rect x="170" y="136" width="150" height="100" rx="8" fill="#2b5ea8" stroke="#173a6e" stroke-width="2"/>
+  <text x="245" y="164" text-anchor="middle" font-size="12" fill="#dbe6f7">USB-C (carga)</text>
+  <text x="245" y="226" text-anchor="middle" font-size="12" fill="#dbe6f7">DW01A + FS8205A</text>
+  <circle cx="184" cy="180" r="9" fill="#e3b23c" stroke="#d62828" stroke-width="3"/>
+  <circle cx="184" cy="180" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="198" y="185" text-anchor="start">B+</text>
+  <circle cx="184" cy="205" r="9" fill="#e3b23c" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="184" cy="205" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="198" y="210" text-anchor="start">B−</text>
+  <circle cx="306" cy="180" r="9" fill="#e3b23c" stroke="#d62828" stroke-width="3"/>
+  <circle cx="306" cy="180" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="292" y="185" text-anchor="end">OUT+</text>
+  <circle cx="306" cy="205" r="9" fill="#e3b23c" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="306" cy="205" r="3.5" fill="#2d3440"/>
+  <text class="pinlbl" x="292" y="210" text-anchor="end">OUT−</text>
+  <!-- 18650 -->
+  <rect x="56" y="142" width="24" height="10" rx="2" fill="#b0b6bf" stroke="#7d8591"/>
+  <rect x="40" y="150" width="56" height="190" rx="10" fill="#3f9f6b" stroke="#23613f" stroke-width="2"/>
+  <rect x="40" y="150" width="56" height="26" rx="10" fill="#2f7d53"/>
+  <text x="68" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">+</text>
+  <text x="68" y="330" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">−</text>
+  <text x="68" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff" transform="rotate(-90 68 245)">18650</text>
+  <text class="h" x="68" y="366" text-anchor="middle">Celda</text>
+  <text class="sub" x="68" y="383" text-anchor="middle">3.0–4.2 V</text>
+  <text class="sub" x="68" y="399" text-anchor="middle">contactos a</text>
+  <text class="sub" x="68" y="414" text-anchor="middle">presión</text>
+  <!-- wires: cell -> TP4056 -->
+  <!-- OUT+ -> pin 5V -->
+  <text class="wl" x="420" y="162" text-anchor="end" fill="#d62828">OUT+  3.0–4.2 V</text>
+  <text class="wl" x="830" y="163" text-anchor="middle" fill="#9a7a00">SCL · GPIO5</text>
+  <text class="wl" x="830" y="203" text-anchor="middle" fill="#2a9d3a">XSHUT · GPIO6</text>
+  <text class="wl" x="700" y="500" text-anchor="middle" fill="#1f6fd1">SDA · GPIO4</text>
+  <text class="wl" x="700" y="520" text-anchor="middle" fill="#d62828">3V3</text>
+  <text class="wl" x="700" y="540" text-anchor="middle" fill="#1a1a1a">GND</text>
+  <!-- divisor -->
+  <rect x="422" y="215" width="16" height="70" rx="3" fill="#e9dcc0" stroke="#2b2f36" stroke-width="2"/>
+  <rect x="422" y="227" width="16" height="4" fill="#8b5a2b"/>
+  <rect x="422" y="237" width="16" height="4" fill="#1a1a1a"/>
+  <rect x="422" y="247" width="16" height="4" fill="#2a9d3a"/>
+  <rect x="422" y="375" width="16" height="70" rx="3" fill="#e9dcc0" stroke="#2b2f36" stroke-width="2"/>
+  <rect x="422" y="387" width="16" height="4" fill="#8b5a2b"/>
+  <rect x="422" y="397" width="16" height="4" fill="#1a1a1a"/>
+  <rect x="422" y="407" width="16" height="4" fill="#2a9d3a"/>
+  <text class="t" x="414" y="246" text-anchor="end" font-weight="700">R1</text>
+  <text class="sub" x="414" y="262" text-anchor="end">1 MΩ</text>
+  <text class="t" x="414" y="406" text-anchor="end" font-weight="700">R2</text>
+  <text class="sub" x="414" y="422" text-anchor="end">1 MΩ</text>
+  <text class="wl" x="418" y="335" text-anchor="end" fill="#b35900">Vbat/2</text>
+  <line x1="20" y1="570" x2="1110" y2="570" stroke="#d9dde3"/>
+  <text class="h" x="20" y="590">Colores</text>
+  <line x1="20" y1="610" x2="48" y2="610" stroke="#d62828" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="56" y="614">+ (OUT+, 5V, 3V3)</text>
+  <line x1="210" y1="610" x2="238" y2="610" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="246" y="614">GND</text>
+  <line x1="400" y1="610" x2="428" y2="610" stroke="#f07c00" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="436" y="614">ADC batería → GPIO3</text>
+  <line x1="20" y1="634" x2="48" y2="634" stroke="#1f6fd1" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="56" y="638">SDA → GPIO4</text>
+  <line x1="210" y1="634" x2="238" y2="634" stroke="#e0b000" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="246" y="638">SCL → GPIO5</text>
+  <line x1="400" y1="634" x2="428" y2="634" stroke="#2a9d3a" stroke-width="4" stroke-linecap="round"/>
+  <text class="note" x="436" y="638">XSHUT → GPIO6</text>
+  <circle cx="30" cy="658" r="9" fill="#e3b23c" stroke="#e3b23c" stroke-width="3"/>
+  <circle cx="30" cy="658" r="3.5" fill="#2d3440"/>
+  <text class="note" x="46" y="662">pin usado</text>
+  <circle cx="130" cy="658" r="8" fill="#5a6272" stroke="#7a8392" stroke-width="1.5"/>
+  <circle cx="130" cy="658" r="3" fill="#2d3440"/>
+  <text class="note" x="146" y="662">pin libre</text>
+  <circle cx="220" cy="658" r="4.5" fill="#2b2f36" stroke="#ffffff" stroke-width="1.2"/>
+  <text class="note" x="232" y="662">unión</text>
+  <path d="M280,660 H292 a6,6 0 0 1 12,0 H316" fill="none" stroke="#2b2f36" stroke-width="2.5"/>
+  <text class="note" x="324" y="662">cruce sin conexión</text>
+  <text class="h" x="610" y="590">Notas</text>
+  <text class="note" x="610" y="614" xml:space="preserve">• Número de GPIO = número serigrafiado: el pin “4” es GPIO4 (sin alias tipo D4).</text>
+  <text class="note" x="610" y="634" xml:space="preserve">• TOF200C: el orden físico de los pines varía según el fabricante; guiarse por el nombre.</text>
+  <text class="note" x="610" y="654" xml:space="preserve">• LDO de la placa: si es un AMS1117, se apaga por debajo de ~4.4 V. Medirlo;</text>
+  <text class="note" x="610" y="674" xml:space="preserve">   plan B: un HT7333 alimentando el pin 3V3 directamente.</text>
+  <text class="note" x="610" y="694" xml:space="preserve">• Divisor: sirve cualquier par de resistencias iguales (R1 = R2).</text>
 </svg>
