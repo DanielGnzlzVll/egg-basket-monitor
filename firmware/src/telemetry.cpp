@@ -11,17 +11,29 @@ namespace {
 
 struct RetryEntry {
     bool occupied = false;
+    bool sensorOk = false;
     uint16_t distanceMm = 0;
     uint16_t stddevX100 = 0;
     uint8_t validCount = 0;
     uint32_t batteryMv = 0;
+    // Hora real de la medición si el reloj ya estaba en hora (el RTC la
+    // conserva durante el deep sleep una vez sincronizado por NTP); 0 si no.
+    uint32_t capturedEpochS = 0;
+    // Respaldo cuando no había hora: ciclos de sueño transcurridos, estimados.
     uint32_t minutesAgo = 0;
 };
 
-// RTC slow memory: sobrevive deep sleep, se borra solo con power-on-reset
-// real (celda desconectada / botón EN mantenido con USB desconectado).
+// RTC slow memory: sobrevive el deep sleep; ESP-IDF la reinicia en
+// cualquier otro tipo de arranque (reset, flasheo, corte de alimentación).
 RTC_DATA_ATTR RetryEntry retryBuffer[RETRY_BUFFER_SLOTS];
 RTC_DATA_ATTR uint32_t bootCount = 0;
+
+// 1700000000 ~= 2023-11-14, piso sano para saber si el reloj está en hora.
+constexpr time_t MIN_VALID_EPOCH = 1700000000;
+
+bool clockIsSet() {
+    return time(nullptr) >= MIN_VALID_EPOCH;
+}
 
 // Sincroniza NTP para poder poner timestamps absolutos en las muestras del
 // buffer de reintento. Si falla (sin internet real, DNS caído, etc.), las
@@ -29,34 +41,36 @@ RTC_DATA_ATTR uint32_t bootCount = 0;
 // de llegada.
 bool syncTime() {
     configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-    time_t now = time(nullptr);
     uint32_t start = millis();
-    // 1700000000 ~= 2023-11-14, piso sano para detectar que NTP ya contestó.
-    while (now < 1700000000 && millis() - start < 5000) {
+    while (!clockIsSet() && millis() - start < 5000) {
         delay(100);
-        now = time(nullptr);
     }
-    return now >= 1700000000;
+    return clockIsSet();
 }
 
-void appendLine(String &body, const DeviceSettings &settings, uint16_t distanceMm,
-                 float stddev, int validCount, uint8_t status, uint32_t batteryMv,
-                 int32_t rssi, int64_t timestampEpochS) {
+// status: 0 = medición del ciclo, 1 = medición reenviada desde el buffer,
+// 2 = el sensor falló (en ese caso no se manda distancia: un 0 ensuciaría
+// la serie de distancia en Grafana).
+void appendLine(String &body, const DeviceSettings &settings, bool sensorOk,
+                 uint16_t distanceMm, float stddev, int validCount, uint8_t status,
+                 uint32_t batteryMv, int32_t rssi, int64_t timestampEpochS) {
+    char fields[160];
+    if (sensorOk) {
+        snprintf(fields, sizeof(fields),
+                 "distance_mm=%u,stddev=%.1f,valid=%d,status=%u,battery_mv=%u,rssi=%d,boots=%u",
+                 distanceMm, stddev, validCount, status, batteryMv, rssi, bootCount);
+    } else {
+        snprintf(fields, sizeof(fields), "valid=0,status=2,battery_mv=%u,rssi=%d,boots=%u",
+                 batteryMv, rssi, bootCount);
+    }
+
     char line[256];
     const char *tag = settings.deviceTag.length() ? settings.deviceTag.c_str() : DEFAULT_DEVICE_TAG;
-
     if (timestampEpochS > 0) {
-        int64_t ns = timestampEpochS * 1000000000LL;
-        snprintf(line, sizeof(line),
-                 "eggbasket,device=%s distance_mm=%u,stddev=%.1f,valid=%d,status=%u,"
-                 "battery_mv=%u,rssi=%d,boots=%u %lld\n",
-                 tag, distanceMm, stddev, validCount, status, batteryMv, rssi, bootCount,
-                 (long long)ns);
+        snprintf(line, sizeof(line), "eggbasket,device=%s %s %lld\n", tag, fields,
+                 (long long)(timestampEpochS * 1000000000LL));
     } else {
-        snprintf(line, sizeof(line),
-                 "eggbasket,device=%s distance_mm=%u,stddev=%.1f,valid=%d,status=%u,"
-                 "battery_mv=%u,rssi=%d,boots=%u\n",
-                 tag, distanceMm, stddev, validCount, status, batteryMv, rssi, bootCount);
+        snprintf(line, sizeof(line), "eggbasket,device=%s %s\n", tag, fields);
     }
     body += line;
 }
@@ -88,12 +102,38 @@ int findSlotForNewEntry() {
     for (int i = 0; i < RETRY_BUFFER_SLOTS; i++) {
         if (!retryBuffer[i].occupied) return i;
     }
-    // Buffer lleno: descartar la entrada más vieja (mayor minutesAgo).
+    // Buffer lleno: descartar la entrada más vieja (mayor minutesAgo, que
+    // crece para todas por igual en cada ciclo).
     int oldest = 0;
     for (int i = 1; i < RETRY_BUFFER_SLOTS; i++) {
         if (retryBuffer[i].minutesAgo > retryBuffer[oldest].minutesAgo) oldest = i;
     }
+    Serial.println("Buffer de reintento lleno: se descarta la muestra mas vieja");
     return oldest;
+}
+
+void queueReading(const SensorReading &reading, uint32_t batteryMv, uint32_t capturedEpochS) {
+    RetryEntry &e = retryBuffer[findSlotForNewEntry()];
+    e.occupied = true;
+    e.sensorOk = reading.sensorOk;
+    e.distanceMm = reading.medianDistanceMm;
+    e.stddevX100 = static_cast<uint16_t>(reading.stddevMm * 100.0f);
+    e.validCount = static_cast<uint8_t>(reading.validCount);
+    e.batteryMv = batteryMv;
+    e.capturedEpochS = capturedEpochS;
+    e.minutesAgo = 0;
+}
+
+int queuedCount() {
+    int n = 0;
+    for (auto &entry : retryBuffer) {
+        if (entry.occupied) n++;
+    }
+    return n;
+}
+
+void clearQueue() {
+    for (auto &entry : retryBuffer) entry.occupied = false;
 }
 
 }  // namespace
@@ -104,43 +144,65 @@ bool sendReading(const DeviceSettings &settings, const SensorReading &reading,
                   uint32_t batteryMv, int32_t rssi) {
     bootCount++;
 
-    // Las entradas ya guardadas envejecen un ciclo más, hayan podido
-    // enviarse o no en esta pasada.
+    // Hora de esta medición según el RTC, antes de intentar NTP: si el WiFi
+    // falla, la muestra se guarda igual con su hora real.
+    uint32_t capturedEpochS = clockIsSet() ? static_cast<uint32_t>(time(nullptr)) : 0;
+
+    // Las entradas sin hora real envejecen un ciclo más.
     for (auto &entry : retryBuffer) {
         if (entry.occupied) entry.minutesAgo += settings.sleepMinutes;
     }
 
-    bool haveTime = syncTime();
+    bool haveTime = (WiFi.status() == WL_CONNECTED) && syncTime();
     time_t nowEpoch = haveTime ? time(nullptr) : 0;
+    if (!capturedEpochS && haveTime) capturedEpochS = static_cast<uint32_t>(nowEpoch);
+
+    // Sin hora no se pueden mandar varias muestras de la misma serie: todas
+    // llegarían con la hora de llegada y chocarían entre sí, y Grafana podría
+    // quedarse con una vieja. En ese caso sólo va la actual y el buffer espera.
+    int queued = queuedCount();
+    bool sendQueued = haveTime && queued > 0;
 
     String body;
-    for (auto &entry : retryBuffer) {
-        if (!entry.occupied) continue;
-        int64_t ts = haveTime ? (nowEpoch - static_cast<int64_t>(entry.minutesAgo) * 60) : 0;
-        appendLine(body, settings, entry.distanceMm, entry.stddevX100 / 100.0f, entry.validCount,
-                   /*status=*/1, entry.batteryMv, rssi, ts);
+    if (sendQueued) {
+        for (auto &entry : retryBuffer) {
+            if (!entry.occupied) continue;
+            int64_t ts = entry.capturedEpochS
+                             ? static_cast<int64_t>(entry.capturedEpochS)
+                             : static_cast<int64_t>(nowEpoch) - static_cast<int64_t>(entry.minutesAgo) * 60;
+            appendLine(body, settings, entry.sensorOk, entry.distanceMm, entry.stddevX100 / 100.0f,
+                       entry.validCount, /*status=*/1, entry.batteryMv, rssi, ts);
+        }
     }
-    appendLine(body, settings, reading.medianDistanceMm, reading.stddevMm, reading.validCount,
-               /*status=*/reading.sensorOk ? 0 : 2, batteryMv, rssi,
+    appendLine(body, settings, reading.sensorOk, reading.medianDistanceMm, reading.stddevMm,
+               reading.validCount, /*status=*/reading.sensorOk ? 0 : 2, batteryMv, rssi,
                haveTime ? nowEpoch : 0);
 
+    if (WiFi.status() != WL_CONNECTED) {
+        queueReading(reading, batteryMv, capturedEpochS);
+        Serial.printf("Sin WiFi: muestra guardada (%d en el buffer)\n", queuedCount());
+        return false;
+    }
+
     String url = normalizeInfluxWriteUrl(settings.influxUrl);
-    Serial.printf("Influx POST -> %s\n", url.c_str());
+    Serial.printf("Influx POST -> %s (%d muestra(s): %d del buffer + la actual%s)\n", url.c_str(),
+                  (sendQueued ? queued : 0) + 1, sendQueued ? queued : 0,
+                  (!haveTime && queued) ? "; sin hora NTP, el buffer espera" : "");
+    Serial.print(body);  // exactamente lo que se envía, para comparar con la medición
 
     WiFiClientSecure client;
     client.setInsecure();  // sin pinning de certificado; ver docs/wiring.md para el trade-off
 
     HTTPClient http;
     http.setTimeout(HTTP_TIMEOUT_MS);
-    bool ok = false;
+    int code = 0;
     if (http.begin(client, url)) {
         http.addHeader("Content-Type", "text/plain");
         http.setAuthorization(settings.influxUser.c_str(), settings.influxToken.c_str());
-        int code = http.POST(body);
-        ok = (code >= 200 && code < 300);
+        code = http.POST(body);
         if (code > 0) {
             Serial.printf("Influx POST -> HTTP %d\n", code);
-            if (!ok) Serial.println(http.getString());  // Grafana Cloud manda el motivo del rechazo en el body
+            if (code < 200 || code >= 300) Serial.println(http.getString());  // motivo del rechazo
         } else {
             Serial.printf("Influx POST -> error de conexion (%s)\n", http.errorToString(code).c_str());
         }
@@ -149,18 +211,24 @@ bool sendReading(const DeviceSettings &settings, const SensorReading &reading,
         Serial.println("Influx POST -> http.begin() fallo, revisar influx_url guardada en el portal");
     }
 
-    if (ok) {
-        for (auto &entry : retryBuffer) entry.occupied = false;
-    } else {
-        int slot = findSlotForNewEntry();
-        retryBuffer[slot].occupied = true;
-        retryBuffer[slot].distanceMm = reading.medianDistanceMm;
-        retryBuffer[slot].stddevX100 = static_cast<uint16_t>(reading.stddevMm * 100.0f);
-        retryBuffer[slot].validCount = static_cast<uint8_t>(reading.validCount);
-        retryBuffer[slot].batteryMv = batteryMv;
-        retryBuffer[slot].minutesAgo = 0;
-    }
+    bool ok = code >= 200 && code < 300;
+    // 400/413/422: Grafana rechazó los datos en sí (p. ej. una muestra vieja
+    // o fuera de orden). Reenviarlos no va a funcionar nunca y trabaría el
+    // buffer para siempre, así que se descartan. En cambio 401/403/404/429,
+    // 5xx o errores de conexión son problemas pasajeros o de configuración:
+    // ahí sí se guarda para reintentar.
+    bool rejected = code == 400 || code == 413 || code == 422;
 
+    if (ok) {
+        if (sendQueued) clearQueue();
+    } else if (rejected) {
+        Serial.printf("Grafana rechazo los datos: se descartan (%d del buffer + la actual)\n",
+                      sendQueued ? queued : 0);
+        if (sendQueued) clearQueue();
+    } else {
+        queueReading(reading, batteryMv, capturedEpochS);
+        Serial.printf("Muestra guardada para reintentar (%d en el buffer)\n", queuedCount());
+    }
     return ok;
 }
 

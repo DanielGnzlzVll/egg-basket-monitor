@@ -43,15 +43,20 @@ eggbasket,device=cocina distance_mm=412,stddev=1.8,valid=19,status=0,battery_mv=
 | `distance_mm` | Mediana de las lecturas válidas del ciclo |
 | `stddev` | Desviación estándar de esas lecturas. Si sube de forma sostenida, el ángulo se corrió |
 | `valid` | Cuántas de las 20 lecturas fueron válidas |
-| `status` | `0` = lectura del ciclo · `1` = muestra reenviada desde el buffer de reintento · `2` = el sensor falló en ese ciclo |
+| `status` | `0` = lectura del ciclo · `1` = lectura reenviada desde el buffer de reintento · `2` = el sensor falló (esa línea no lleva `distance_mm` ni `stddev`) |
 | `battery_mv` | Tensión de la celda, leída por el divisor en GPIO3 |
 | `rssi` | Señal WiFi en dBm |
 | `boots` | Contador de despertares desde el último reset |
 
-Si el WiFi falla, la muestra se guarda en la memoria RTC (sobrevive al deep
-sleep, hasta 3 muestras) y se reenvía en el siguiente ciclo con conexión,
-con su hora original reconstruida vía NTP: un router reiniciándose no deja
-huecos en los datos. La
+Si el envío falla (sin WiFi, error de conexión o del servidor), la muestra
+se guarda en la memoria RTC, que sobrevive al deep sleep, con la hora real en
+que se midió. En el siguiente envío que funcione se mandan **todas** las
+pendientes junto con la actual, en un solo POST y cada una con su hora: un
+router reiniciándose no deja huecos en los datos. Entran 48 muestras (dos
+días enviando cada hora); si se llena, se descarta la más vieja. Si Grafana
+rechaza los datos en sí (HTTP 400, por ejemplo una muestra demasiado vieja),
+se descartan en vez de reintentarlos para siempre. El log por serial muestra
+las líneas exactas de cada envío. La
 calibración distancia → nivel de llenado no vive en el firmware sino en
 Grafana, para poder recalibrar sin reflashear.
 

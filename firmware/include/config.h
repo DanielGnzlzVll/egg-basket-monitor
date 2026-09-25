@@ -84,4 +84,7 @@ constexpr uint32_t HTTP_TIMEOUT_MS = 10000;
 // Prometheus sin esta ruta ya no rompe el envio.
 constexpr const char *INFLUX_WRITE_PATH = "/api/v1/push/influx/write";
 
-constexpr int RETRY_BUFFER_SLOTS = 3;
+// Muestras que se guardan en memoria RTC si falla el envío; se mandan todas
+// juntas en el siguiente POST que funcione. 48 = dos días enviando cada hora,
+// ~1.2 KB de los 8 KB de RTC del C3.
+constexpr int RETRY_BUFFER_SLOTS = 48;
